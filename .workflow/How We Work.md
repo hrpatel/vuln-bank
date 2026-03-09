@@ -115,4 +115,4 @@ Every significant decision gets logged in `decisions.md`. This creates a record 
 
 ---
 
-*Last updated: March 6, 2026*
+*Last updated: March 9, 2026*

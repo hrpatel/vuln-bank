@@ -43,6 +43,12 @@ Full workflow documentation is in `.workflow/`:
 
 This is a deliberately vulnerable banking application for security testing practice. Work involves updating and extending the vulnerability bank — adding new vulnerability scenarios, improving existing ones, and maintaining the application.
 
+## Tracking
+
+- Log sessions to `metrics.md` using the structured field definitions (Phase, Driver, Operator, Work Category, Tool)
+- Log significant decisions to `decisions.md` using the structured entry format (Type, Category, Chosen path, Alternatives)
+- Both feed into the Meta Tracker dashboard (meta.jynaxxapps.com)
+
 ## Code Changes
 
 - All changes go through PRs — no direct pushes to main

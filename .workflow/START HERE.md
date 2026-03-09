@@ -81,10 +81,10 @@ Every task file must include these fields in its header:
 | **STATUS.md** | Repo root | Every session |
 | **How We Work** | `.workflow/` | When you need process details |
 | **Tips & Lessons** | `.workflow/` | When you hit a technical snag |
-| **decisions.md** | Repo root | When you need project history |
-| **metrics.md** | Repo root | When updating tracking data |
+| **decisions.md** | Repo root | When you need project history; log decisions using the structured format |
+| **metrics.md** | Repo root | When updating tracking data; log sessions using the field definitions |
 | **tasks/index.md** | `tasks/` | Before starting any work |
 
 ---
 
-*Adapt these guidelines to your workflow. Last updated: March 6, 2026.*
+*Adapt these guidelines to your workflow. Last updated: March 9, 2026.*
