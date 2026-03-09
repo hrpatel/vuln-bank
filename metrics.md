@@ -25,6 +25,7 @@
 |---------|------|-------------|------------|---------|-------|-----------|-------------|-------|
 | 1 | Mar 6 | 1 | -- | 3 | Claude Code | 30 min | ~25 min | PR #1: Workflow setup |
 | 1 | Mar 6 | 1 | -- | 1 | Claude Code | 10 min | ~10 min | PR #2: Review request |
+| 3 | Mar 9 | 1 | 1 | 2 | Claude Code | -- | -- | PR #3: Workflow alignment (9 files) |
 
 ---
 
@@ -52,6 +53,7 @@
 |---------|------|--------------------|-----|-----------|------------|-------|--------|----------|---------------|------|
 | 1 | Mar 6 | ~45 min | 2 | 2 | Workflow setup, multi-model coordination | Spec | ai | michael | Planning | Claude Code |
 | 2 | Mar 9 | ~20 min | 0 | 0 | Align workflow docs with Meta Tracker data model | Spec | collaborative | michael | Planning | Claude Code |
+| 3 | Mar 9 | ~1.5 hr | 1 | 1 | Repo migration, workflow alignment PR, Cursor review intake | Spec | collaborative | michael | Planning | Claude Code |
 
 ### Field Definitions
 
@@ -74,6 +76,8 @@ These fields align with the Meta Tracker data model so sessions feed directly in
 | -- | Claude Code | #1 | +578 | Workflow setup, all docs |
 | -- | Claude Code | #2 | +51 | Review request for Cursor |
 | 04 | Claude Code | (on PR #1) | +108 | Data model alignment for workflow docs |
+| 04 | Claude Code | #3 | +111 | Workflow docs alignment (repo migration) |
+| -- | Cursor | #5 | +151 | Workflow review and suggestions |
 
 Both models should log their work here so activity across Claude Code and Cursor is visible in one place.
 

@@ -4,7 +4,7 @@
 **Repo:** https://github.com/hrpatel/vuln-bank
 **Live site:** N/A (runs locally via Docker)
 **Current phase:** Spec
-**Current state:** Workflow docs aligned with Meta Tracker data model; awaiting Cursor review
+**Current state:** Cursor review complete; coordination gap identified as next priority (task #05)
 
 ---
 
@@ -25,7 +25,9 @@ A deliberately vulnerable banking application designed for practicing security t
 
 ## Recent Work
 
-- Aligned workflow docs with Meta Tracker data model (session fields, decision format, tracking conventions)
+- Cursor reviewed workflow and identified 9 improvement areas (workflow-suggestions-cursor.md)
+- Repo migrated: removed fork association with Commando-X/vuln-bank, recreated as standalone
+- Aligned workflow docs with Meta Tracker data model (PR #3, 9 files)
 - Task #01 done — vuln-bank added to Meta Tracker dashboard (PR #77 in meta-tracker repo)
 - Workflow setup: added multi-model coordination docs, task tracking, project metrics structure
 
