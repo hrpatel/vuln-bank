@@ -61,6 +61,17 @@ Both models should log decisions — not just the model that made them. If Curso
 
 ---
 
+#### Repo Migration — Remove Fork Association
+- **Type:** decision
+- **Category:** process
+- **Context:** hrpatel/vuln-bank was a fork of Commando-X/vuln-bank. Git tooling (gh) auto-created PRs against the upstream repo, leaking work to a public project.
+- **Chosen path:** Delete the fork, recreate as a standalone repo, re-push all content
+- **Alternatives:** (1) Remove upstream remote only — doesn't fix the GitHub fork association. (2) Keep the fork and be careful — too error-prone.
+- **Why this path:** Clean break eliminates the risk entirely. All content was backed up locally before deletion.
+- **Outcome:** New standalone repo at same URL, PR #3 re-created successfully, no data lost
+
+---
+
 ## Appendix: Entry Types
 
 | Type | Use When |

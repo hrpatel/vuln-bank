@@ -6,6 +6,7 @@
 | 02 | Create generic multi-model bootstrap template | Medium | Queued | None | 03 | `.workflow/bootstrap-multi-model.md` | -- | Mar 6 |
 | 03 | Create shared AI learnings & process suggestions doc | Medium | Queued | None | 02 | `.workflow/ai-learnings.md`, `CLAUDE.md`, `.cursorrules` | -- | Mar 6 |
 | 04 | Align workflow docs with Meta Tracker data model | Medium | Done | None | Any non-overlapping | `metrics.md`, `decisions.md`, `REVIEW-REQUEST.md`, `.workflow/How We Work.md`, `.workflow/START HERE.md`, `STATUS.md` | Claude Code | Mar 9 |
+| 05 | Solve multi-model coordination gaps | High | Queued | None | Any non-overlapping | `tasks/index.md`, `.workflow/How We Work.md`, `.workflow/START HERE.md`, `decisions.md`, `CLAUDE.md`, `.cursorrules` | -- | Mar 9 |
 
 ---
 
@@ -13,7 +14,7 @@
 
 **Chain A — Workflow Foundation:** #01 ✓ → #02, #03 (can run in parallel, no remaining blockers)
 
-**Standalone:** None yet.
+**Standalone:** #05 — Solve coordination gaps (high priority, no dependencies)
 
 ---
 
