@@ -4,7 +4,7 @@
 **Repo:** https://github.com/hrpatel/vuln-bank
 **Live site:** N/A (runs locally via Docker)
 **Current phase:** Spec
-**Current state:** Cursor review complete; coordination gap identified as next priority (task #05)
+**Current state:** Task #05 in progress — GitHub Issues coordination system designed, POC validated, guide written. Awaiting Cursor/operator review before full switchover.
 
 ---
 
@@ -25,11 +25,12 @@ A deliberately vulnerable banking application designed for practicing security t
 
 ## Recent Work
 
+- **Session 34:** GitHub Issues POC validated — sub-issues, dependencies, labels, claiming, signaling all work. Coordination guide written (`.workflow/github-issues-coordination.md`). All workflow docs updated to reference Issues instead of task index. (PR #11)
+- **Session 33:** Designed GitHub Issues coordination system to replace file-based task index (decisions.md updated)
 - Cursor reviewed workflow and identified 9 improvement areas (workflow-suggestions-cursor.md)
 - Repo migrated: removed fork association with Commando-X/vuln-bank, recreated as standalone
 - Aligned workflow docs with Meta Tracker data model (PR #3, 9 files)
 - Task #01 done — vuln-bank added to Meta Tracker dashboard (PR #77 in meta-tracker repo)
-- Workflow setup: added multi-model coordination docs, task tracking, project metrics structure
 
 ## Known Issues
 
@@ -40,7 +41,7 @@ A deliberately vulnerable banking application designed for practicing security t
 - **Two AI models working in parallel:**
   - Claude Code (CLI) — operated by Michael
   - Cursor — operated by coworker
-- Coordination via task index with file-level conflict detection
+- Coordination via GitHub Issues (replacing file-based task index — see `.workflow/github-issues-coordination.md`)
 
 ---
 

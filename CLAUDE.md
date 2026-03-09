@@ -6,9 +6,9 @@
 
 1. Read this file (you're doing it now)
 2. Read `STATUS.md` for current project state
-3. Read `tasks/index.md` for the work queue
-4. Check for any tasks marked **In Progress (Cursor)** — avoid file conflicts with those
-5. Pick the next available task or ask Michael what to work on
+3. **Check GitHub Issues** for available work: `gh issue list --repo hrpatel/vuln-bank --label available`
+4. Check for any issues labeled `in-progress` + `cursor` — avoid file conflicts with those
+5. Pick an available issue or ask Michael what to work on
 
 ## Multi-Model Coordination
 
@@ -16,18 +16,20 @@ This repo is worked on by **two AI models in parallel**:
 - **Claude Code** (CLI) — operated by Michael
 - **Cursor** — operated by a coworker
 
+**Coordination happens through GitHub Issues**, not `tasks/index.md`. See `.workflow/github-issues-coordination.md` for the full guide, API reference, and examples.
+
 ### The Rules
 
-1. **Check before you start.** Before beginning any task, read `tasks/index.md`. If another model has a task In Progress that touches the same files, pick a different task.
-2. **Claim your task.** When you start a task, update its status in the index to `In Progress (Claude Code)`.
+1. **Check before you start.** Check GitHub Issues for `in-progress` tasks from the other model. If one touches the same files as yours, pick a different task.
+2. **Claim your task.** Assign yourself and label the issue `in-progress` + `claude-code` in a single PATCH call.
 3. **Branch per task.** Always work on a feature branch, never directly on main.
 4. **PRs are the merge point.** Create PRs; humans merge.
-5. **Update the index when done.** Mark your task as Done and move the task file to `tasks/done/`.
+5. **Unblock downstream.** When you close an issue, check what it was blocking and flip newly-unblocked issues from `blocked` to `available`.
 
 ### Conflict Avoidance
 
-Every task file has a "Files to Edit" section. This is the conflict-detection mechanism:
-- If your task touches `app.py` and a Cursor task that's In Progress also touches `app.py`, **don't start yours yet**.
+Each issue body lists the files it will edit. This is the conflict-detection mechanism:
+- If your task touches `app.py` and a Cursor issue labeled `in-progress` also touches `app.py`, **don't start yours yet**.
 - If there's no file overlap, you're safe to work in parallel.
 - When in doubt, ask Michael.
 
@@ -36,8 +38,9 @@ Every task file has a "Files to Edit" section. This is the conflict-detection me
 Full workflow documentation is in `.workflow/`:
 - `START HERE.md` — session rules and task workflow
 - `How We Work.md` — roles, coordination protocol, review process
+- `github-issues-coordination.md` — **GitHub Issues coordination guide, API reference, and hard-problem solutions**
 - `Tips & Lessons.md` — practical knowledge from AI-assisted development
-- `task-template.md` — standard format for new task files
+- `task-template.md` — standard format for archival task snapshots
 
 ## Project Context
 
