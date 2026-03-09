@@ -10,8 +10,8 @@
 2. **Humans merge.** AI models never merge PRs. They create them, review them, flag them as ready.
 3. **Tasks are sequential unless marked parallel-safe.** Parallel tasks touching the same files can revert each other.
 4. **Ask before acting on anything destructive or ambiguous.** When in doubt, ask.
-5. **Check for conflicts before starting.** Read `tasks/index.md` and verify no in-progress task from the other model touches your files.
-6. **Claim your work.** Update the task index status when you start and finish a task.
+5. **Check for conflicts before starting.** Check GitHub Issues labeled `in-progress` and verify no task from the other model touches your files.
+6. **Claim your work.** Assign yourself and label the issue when you start. Close the issue and unblock downstream when you finish.
 
 ## Before You Build
 
@@ -29,38 +29,39 @@ A few minutes of research before implementing saves multiple iteration cycles af
 1. Read this file (you're doing it now).
 2. Read `CLAUDE.md` (if you're Claude Code) or `.cursorrules` (if you're Cursor) for model-specific instructions.
 3. Check `STATUS.md` for current project state.
-4. Check `tasks/index.md`. If there are queued tasks, pick the next one that doesn't conflict with any in-progress work.
-5. If no tasks are queued, ask your operator what to work on.
+4. **Check GitHub Issues** for available work: `gh issue list --repo hrpatel/vuln-bank --label available`. If there are available issues, pick one that doesn't conflict with any `in-progress` work.
+5. If no issues are available, ask your operator what to work on.
+6. For the full coordination guide, see `.workflow/github-issues-coordination.md`.
 
 ## Task Workflow
 
-- Tasks live in `tasks/` as individual `.md` files.
-- `tasks/index.md` lists all tasks at a glance with status and ownership.
-- When you finish a task, mark it Done in the index and move the task file to `tasks/done/`.
+- **Tasks are GitHub Issues.** The issue body contains the spec, files to edit, and acceptance criteria.
+- Labels and assignments provide real-time status visible from any branch.
+- When you finish a task, close the issue and check for downstream issues to unblock.
+- Optionally save a snapshot to `tasks/done/` for offline/portfolio reference.
 - Update `STATUS.md`, `decisions.md`, and `metrics.md` as part of completing any task that warrants it.
 
 ## Task Dependencies & Parallel Work
 
-Every task file must include these fields in its header:
+GitHub Issues support native dependency tracking:
+- **Sub-issues:** Group related tasks under a parent issue. The parent shows automatic progress roll-up.
+- **Dependencies:** Link issues with "blocked by" relationships. Check `.workflow/github-issues-coordination.md` for the API commands.
+- **Files to edit:** Always list files in the issue body — this enables conflict detection between models.
 
-- **Depends on:** List any task numbers that must be completed first. Use `None` if independent.
-- **Parallel safe with:** List task numbers that can safely run at the same time, or `Any non-overlapping` if it doesn't touch shared files.
-- **Files to Edit:** List all files this task will modify — this enables conflict detection.
-
-**How to assess parallel safety:** Two tasks conflict if they modify the same file. Check the "Files to Edit" section of all In Progress tasks before starting yours.
+**How to assess parallel safety:** Two tasks conflict if they modify the same file. Check the "Files to edit" section of all `in-progress` issues before starting yours.
 
 ## Creating New Tasks
 
-1. **Number it sequentially.** Check the index for the next available number. Use `{##}-{slug}.md` format.
-2. **List files touched.** Every task must have a "Files to Edit" section.
-3. **Check for dependencies.** Scan all open tasks. If any open task touches the same files, note the dependency.
-4. **Fill all header fields.** Status, Created, Priority, Depends on, Parallel safe with, Executed by, Completed, PR.
+1. **Create a GitHub Issue.** Include a clear title, spec, acceptance criteria, and "Files to edit" section in the body.
+2. **Label it.** Use `available` if it's ready to start, or `blocked` if it has unresolved dependencies.
+3. **Link dependencies.** If the task depends on another issue, add a "blocked by" link via the API.
+4. **Link to parent.** If it's part of a chain, add it as a sub-issue of the parent.
 
 ## Task Completion Checklist
 
-1. **Task file updated** — status set to Done, acceptance criteria checked off.
-2. **Index updated** — task marked Done in `tasks/index.md`.
-3. **Task file moved** — from `tasks/` to `tasks/done/`.
+1. **Issue closed** — close the GitHub Issue.
+2. **Downstream unblocked** — check what the closed issue was blocking; flip newly-unblocked issues from `blocked` to `available`.
+3. **Completion comment** — leave a comment noting the PR number and any issues unblocked.
 4. **Metrics updated** — if code was shipped, update `metrics.md`.
 5. **Decisions updated** — if a significant decision was made, update `decisions.md`.
 6. **STATUS.md updated** — reflect the current project state.
@@ -83,7 +84,8 @@ Every task file must include these fields in its header:
 | **Tips & Lessons** | `.workflow/` | When you hit a technical snag |
 | **decisions.md** | Repo root | When you need project history; log decisions using the structured format |
 | **metrics.md** | Repo root | When updating tracking data; log sessions using the field definitions |
-| **tasks/index.md** | `tasks/` | Before starting any work |
+| **GitHub Issues** | `gh issue list --repo hrpatel/vuln-bank` | Before starting any work |
+| **Coordination Guide** | `.workflow/github-issues-coordination.md` | API reference for Issues workflow |
 
 ---
 

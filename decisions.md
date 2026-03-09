@@ -72,6 +72,40 @@ Both models should log decisions — not just the model that made them. If Curso
 
 ---
 
+### Solving Coordination Gaps
+
+**Summary:** Replacing file-based task coordination with GitHub Issues after Cursor identified critical visibility gap
+**Sessions:** 33, 34
+**Phase:** Spec
+**AI Tools:** Claude Code
+
+---
+
+#### GitHub Issues Replace Task Index as Coordination Layer
+- **Type:** decision
+- **Category:** process
+- **Context:** Cursor's workflow review (March 9) identified that the task index (`tasks/index.md`) is broken as a coordination mechanism. Both models update it on their own branches, so neither can see the other's claims. The file-level conflict detection system — the centerpiece of the coordination protocol — has a visibility gap. Additionally: no atomicity on task claiming (race condition), no staleness detection for abandoned claims, no cross-model communication channel, and scope expansion is not signaled.
+- **Chosen path:** GitHub Issues as the full coordination system. Issues are the live, real-time layer. Task files become archival snapshots saved to `tasks/done/` when issues close (for portfolio/offline reference).
+- **Alternatives:** (1) Exempt `tasks/index.md` from no-direct-push rule — still has race conditions on concurrent pushes, creates precedent hole. (2) Draft PR on claim as secondary signal — weak, does not solve race condition, clutters PR list. (3) Hybrid: Issues for status, task files for specs — splits source of truth across two systems. (4) Keep current system and rely on verbal operator coordination — fragile, does not scale.
+- **Why this path:** GitHub Issues are branch-independent by design, eliminating the visibility gap entirely. GitHub's native dependency tracking (GA August 2025) and sub-issues (GA 2025) provide exactly the chain/blocking semantics needed. Assignment is atomic (no race condition). Comments provide cross-model signaling. Timestamps provide staleness detection. One source of truth, not two.
+
+#### POC Validation Results (Session 34)
+- **Type:** event
+- **Category:** process
+- **Context:** Built a test chain (parent issue #7 with 3 sub-issues #8-#10) to validate every feature of the design.
+- **Results:**
+  - Labels: create, assign, swap — all work via PATCH
+  - Sub-issues: link via POST with `-F sub_issue_id={id}` (must be integer). Parent shows automatic progress roll-up (e.g., 1/3 = 33%)
+  - Dependencies: link via `POST /issues/{N}/dependencies/blocked_by` with `-F issue_id={id}`. Dependency data includes blocker state (open/closed)
+  - Assignment (claiming): atomic, visible immediately
+  - Cross-model signaling: comments are timestamped and branch-independent
+  - **Key finding:** Closing a blocker does NOT auto-update downstream labels. Label flipping (blocked -> available) is a manual step for the completing model. Typically 2-3 API calls.
+  - **Key finding:** Issue ID (large integer from API response) vs issue number (#8) — sub-issue and dependency APIs require the ID, not the number
+  - **Key finding:** Fine-grained PATs need explicit "Issues: Read and write" permission for label and assignment updates
+- **Outcome:** All design assumptions validated. Guide written to `.workflow/github-issues-coordination.md`. Workflow docs updated. Ready for Cursor and operators to review.
+
+---
+
 ## Appendix: Entry Types
 
 | Type | Use When |

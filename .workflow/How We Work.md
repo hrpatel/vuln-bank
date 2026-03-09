@@ -25,25 +25,27 @@ Both models:
 
 ## Coordination Protocol
 
-### The Task Index is the Source of Truth
+### GitHub Issues Are the Source of Truth
 
-`tasks/index.md` is where both models check for work and signal what they're doing. The status column tells everyone what's happening:
+**GitHub Issues** are the real-time coordination layer. Labels, assignments, and comments are visible to both models from any branch — no merge required. See `.workflow/github-issues-coordination.md` for the full API reference and workflow details.
 
-| Status | Meaning |
-|--------|---------|
-| `Queued` | Available for either model to pick up |
-| `In Progress (Claude Code)` | Claude Code is actively working on this |
-| `In Progress (Cursor)` | Cursor is actively working on this |
-| `In Review` | PR created, waiting for human review/merge |
-| `Done` | Merged and complete |
+| Label | Meaning |
+|-------|---------|
+| `available` | Ready for either model to pick up |
+| `in-progress` | Claimed and being worked on |
+| `blocked` | Has unresolved dependencies |
+| `claude-code` | Owned by Claude Code |
+| `cursor` | Owned by Cursor |
+
+> **Historical note:** `tasks/index.md` was the original coordination mechanism but had a visibility gap — both models edited it on branches, so neither could see the other's claims. Issues solve this by being branch-independent.
 
 ### Before Starting a Task
 
-1. Read `tasks/index.md`
-2. Find a `Queued` task (or create one if your operator gives you new work)
-3. Check its "Files to Edit" against all `In Progress` tasks from the other model
-4. If there's a file overlap → pick a different task or wait
-5. If no overlap → update the index to claim the task, then start working
+1. Check GitHub Issues: `gh issue list --repo hrpatel/vuln-bank`
+2. Find an issue labeled `available` (or create one if your operator gives you new work)
+3. Check its "Files to edit" against all `in-progress` issues from the other model
+4. If there's a file overlap → pick a different issue or wait
+5. If no overlap → claim the issue (assign + relabel in one PATCH call), then start working
 
 ### Branch Naming
 
@@ -67,12 +69,12 @@ If a merge conflict arises in a PR, the model that created the PR resolves it.
 
 1. Operator describes what they want
 2. AI model asks clarifying questions if needed
-3. AI model checks the task index for conflicts
-4. AI model creates a task file (if one doesn't exist) and claims it in the index
+3. AI model checks GitHub Issues for conflicts
+4. AI model creates an issue (if one doesn't exist) and claims it (assign + label)
 5. AI model works on a feature branch
 6. AI model creates a PR
 7. **Human merges** the PR
-8. AI model updates the task index, STATUS.md, and other tracking docs
+8. AI model closes the issue, unblocks downstream issues, and updates STATUS.md and other tracking docs
 
 ## Communication Style
 
@@ -108,8 +110,8 @@ Every significant decision gets logged in `decisions.md`. This creates a record 
 
 1. **Small, targeted PRs** — one concern per PR
 2. **Branch isolation** — each model on its own branch
-3. **Task ownership** — claimed in the index, no ambiguity
-4. **File-level conflict detection** — "Files to Edit" is the mechanism
+3. **Task ownership** — claimed via GitHub Issue assignment, no ambiguity
+4. **File-level conflict detection** — "Files to edit" in issue bodies is the mechanism
 5. **Sequential within chains, parallel across chains** — dependency chains are respected; independent tasks run simultaneously
 6. **Research before building** — don't default to the first approach; find the best one
 
