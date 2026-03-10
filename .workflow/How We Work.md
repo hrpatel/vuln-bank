@@ -74,7 +74,7 @@ If a merge conflict arises in a PR, the model that created the PR resolves it.
 5. AI model works on a feature branch
 6. AI model creates a PR
 7. **Human merges** the PR
-8. AI model closes the issue, unblocks downstream issues, and updates STATUS.md and other tracking docs
+8. When the PR is merged, the issue is closed (by automation if the PR body has "Fixes #N", or manually). The person who merges unblocks downstream issues and updates STATUS.md / tracking docs as needed.
 
 ## Communication Style
 

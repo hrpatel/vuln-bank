@@ -11,7 +11,7 @@
 3. **Tasks are sequential unless marked parallel-safe.** Parallel tasks touching the same files can revert each other.
 4. **Ask before acting on anything destructive or ambiguous.** When in doubt, ask.
 5. **Check for conflicts before starting.** Check GitHub Issues labeled `in-progress` and verify no task from the other model touches your files.
-6. **Claim your work.** Assign yourself and label the issue when you start. Close the issue and unblock downstream when you finish.
+6. **Claim your work.** Assign yourself and label the issue when you start. Create a PR when you finish; the issue stays open until the PR is merged (human or automation closes it then).
 
 ## Before You Build
 
@@ -36,7 +36,7 @@ A few minutes of research before implementing saves multiple iteration cycles af
 
 - **Tasks are GitHub Issues.** The issue body contains the spec, files to edit, and acceptance criteria.
 - Labels and assignments provide real-time status visible from any branch.
-- When you finish a task, close the issue and check for downstream issues to unblock.
+- When you finish a task, create or update the PR and leave a completion comment; do not close the issue. The issue is closed when the PR is merged (by human or automation); downstream issues are unblocked at that time.
 - Optionally save a snapshot to `.archive/tasks/done/` for offline/portfolio reference.
 - Update `STATUS.md`, `decisions.md`, and `metrics.md` as part of completing any task that warrants it.
 
@@ -58,12 +58,13 @@ GitHub Issues support native dependency tracking:
 
 ## Task Completion Checklist
 
-1. **Issue closed** — close the GitHub Issue.
-2. **Downstream unblocked** — check what the closed issue was blocking; flip newly-unblocked issues from `blocked` to `available`.
-3. **Completion comment** — leave a comment noting the PR number and any issues unblocked.
-4. **Metrics updated** — if code was shipped, update `metrics.md`.
-5. **Decisions updated** — if a significant decision was made, update `decisions.md`.
-6. **STATUS.md updated** — reflect the current project state.
+1. **Rebase on main before closing** — when closing a session: fetch and rebase (`git fetch origin main && git rebase origin/main`), resolve any conflicts, then commit and push; use `git push --force-with-lease origin <branch>` if the branch was already pushed. Verify the PR shows no conflicts.
+2. **PR created or updated** — open or update the PR; do **not** close the GitHub Issue. The issue is closed when the PR is merged (by human or automation).
+3. **Downstream unblocked** — when the PR is merged and the issue is closed, whoever merges flips any newly-unblocked issues from `blocked` to `available` (or document in the PR comment which issues to unblock).
+4. **Completion comment** — leave a comment on the issue noting the PR number and that it is ready for review/merge.
+5. **Metrics updated** — on session close, update `metrics.md` (session row, PR/commits, and code volume if applicable).
+6. **Decisions updated** — if a significant decision was made, update `decisions.md`.
+7. **STATUS.md updated** — reflect the current project state.
 
 ## Review Cadence
 
@@ -88,4 +89,4 @@ GitHub Issues support native dependency tracking:
 
 ---
 
-*Adapt these guidelines to your workflow. Last updated: March 9, 2026.*
+*Adapt these guidelines to your workflow. Last updated: March 10, 2026.*

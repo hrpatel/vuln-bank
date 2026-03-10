@@ -7,7 +7,7 @@
 | **Project Name** | Vuln Bank |
 | **Repository** | https://github.com/hrpatel/vuln-bank |
 | **Tracking Since** | March 6, 2026 |
-| **Last Updated** | March 10, 2026 (Session 5) |
+| **Last Updated** | March 10, 2026 (Session 7) |
 
 ---
 
@@ -18,6 +18,7 @@
 | 1 | Mar 6 | 629 | 0 | +629 | Workflow setup (non-code) |
 | 4 | Mar 9 | 323 | 58 | +265 | .workflow/github-issues-coordination.md, CLAUDE.md, .cursorrules, How We Work.md, START HERE.md, decisions.md |
 | 5 | Mar 10 | 39 | 88 | -49 | CLAUDE.md, .cursorrules, How We Work.md, START HERE.md, github-issues-coordination.md |
+| 7 | Mar 10 | ~50 | ~10 | +40 | .workflow/START HERE.md, github-issues-coordination.md, How We Work.md (issue #49, PR #50) |
 
 ---
 
@@ -30,6 +31,7 @@
 | 3 | Mar 9 | 1 | 1 | 2 | Claude Code | -- | -- | PR #3: Workflow alignment (9 files) |
 | 4 | Mar 9 | 1 | -- | 1 | Claude Code | -- | ~1 hr | PR #11: GitHub Issues coordination guide + workflow updates (6 files) |
 | 5 | Mar 10 | 1 | -- | 2 | Claude Code | -- | -- | PR #13: DRY entry points + serialize workflow changes (4 files) |
+| 7 | Mar 10 | 1 | -- | 2 | Cursor | -- | -- | PR #50: Rebase-on-main checklist step + close issue only when PR merged (issue #49) |
 
 ---
 
@@ -61,6 +63,7 @@
 | 4 | Mar 9 | ~1 hr | 1 | 2 | GitHub Issues POC, coordination guide, workflow doc updates | Spec | collaborative | michael | Planning | Claude Code |
 | 5 | Mar 10 | -- | 0 | 0 | Created .archive/, moved obsolete workflow artifacts (tasks/, workflow-suggestions-cursor.md, REVIEW-REQUEST.md), updated workflow docs | Spec | ai | coworker | Planning | Cursor |
 | 6 | Mar 10 | -- | 1 | 2 | DRY entry points, created-by labels, codebase audit, 26 issues created | Spec | collaborative | michael | Planning | Claude Code |
+| 7 | Mar 10 | -- | 1 | 0 | Issue #49: rebase-on-main in checklist; workflow change to close issue only when PR merged | Spec | ai | coworker | Planning | Cursor |
 
 ### Field Definitions
 
@@ -88,6 +91,7 @@ These fields align with the Meta Tracker data model so sessions feed directly in
 | 05 | Claude Code | #11 | +265 | GitHub Issues coordination guide, POC validation, workflow doc updates |
 | -- | Cursor | -- | -- | .archive/ created; moved tasks/, workflow-suggestions-cursor.md, REVIEW-REQUEST.md; updated .workflow/ and STATUS |
 | -- | Claude Code | #13 | -49 | DRY entry points, serialize workflow changes, created-by labels |
+| 49 | Cursor | #50 | +40 | Rebase-on-main step in checklist; don't close issue until PR merged (START HERE, coordination, How We Work) |
 
 Both models should log their work here so activity across Claude Code and Cursor is visible in one place.
 
