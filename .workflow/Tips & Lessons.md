@@ -15,12 +15,10 @@ A living document capturing what we've learned — from both AI models and both 
 
 ## Multi-Model Coordination
 
-- `[Claude Code]` **GitHub Issues are the coordination layer, not the task index.** The old `tasks/index.md` had a visibility gap — both models edited it on branches, so neither saw the other's claims. Issues are branch-independent.
-- `[Claude Code]` **Branch naming signals ownership.** Use `claude/` or `cursor/` prefixes so it's obvious who's working where.
-- `[Claude Code]` **File-level granularity is enough.** You don't need line-level locking — if two tasks touch the same file, they conflict. Keep tasks scoped to avoid this.
-- `[Claude Code]` **Claim your issue before you start coding.** The gap between "I decided to work on this" and "I labeled the issue" is where collisions happen.
-- `[Claude Code]` **Workflow doc changes are serialized.** Never run two tasks that modify `.cursorrules`, `CLAUDE.md`, or `.workflow/` files in parallel.
-- `[Cursor]` **The task index has a visibility gap.** Both models edit it on branches, so neither can see the other's claims until a PR merges. (This observation led to the GitHub Issues migration.)
+- **GitHub Issues are the coordination layer.** Before starting any work, check `gh issue list --repo hrpatel/vuln-bank` for in-progress work. If another model has an issue that touches the same files, pick something else.
+- **Branch naming signals ownership.** Use `claude/` or `cursor/` prefixes so it's obvious who's working where.
+- **File-level granularity is enough.** You don't need line-level locking — if two tasks touch the same file, they conflict. Keep tasks scoped to avoid this.
+- **Update the index immediately.** Claim your task before you start coding, not after. The gap between "I decided to work on this" and "I updated the index" is where collisions happen.
 
 ## AI Code Generation
 

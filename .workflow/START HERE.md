@@ -37,7 +37,7 @@ A few minutes of research before implementing saves multiple iteration cycles af
 - **Tasks are GitHub Issues.** The issue body contains the spec, files to edit, and acceptance criteria.
 - Labels and assignments provide real-time status visible from any branch.
 - When you finish a task, close the issue and check for downstream issues to unblock.
-- Optionally save a snapshot to `tasks/done/` for offline/portfolio reference.
+- Optionally save a snapshot to `.archive/tasks/done/` for offline/portfolio reference.
 - Update `STATUS.md`, `decisions.md`, and `metrics.md` as part of completing any task that warrants it.
 
 ## Task Dependencies & Parallel Work
