@@ -27,6 +27,8 @@ When an issue closes, a snapshot can be saved to `.archive/tasks/done/` for offl
 | `blocked` | Red | Has unresolved dependencies |
 | `claude-code` | Purple | Owned by Claude Code |
 | `cursor` | Blue | Owned by Cursor |
+| `created-by:claude-code` | Purple | Issue was created by Claude Code |
+| `created-by:cursor` | Blue | Issue was created by Cursor |
 
 ---
 
@@ -202,7 +204,7 @@ Labels must be kept in sync manually. The key transitions:
 
 | Event | Label Change | Who Does It |
 |-------|-------------|-------------|
-| Task created | Set `available` (or `blocked` if it has open dependencies) | Creator |
+| Task created | Set `available` (or `blocked` if it has open dependencies) + `created-by:<model>` | Creator |
 | Task claimed | `available` -> `in-progress` + model label | Claiming model |
 | Task completed | Issue closed | Completing model |
 | Blocker resolved | `blocked` -> `available` on downstream issues | Completing model |
