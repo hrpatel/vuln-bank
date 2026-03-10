@@ -7,7 +7,7 @@
 | **Project Name** | Vuln Bank |
 | **Repository** | https://github.com/hrpatel/vuln-bank |
 | **Live URL** | N/A (local Docker) |
-| **Tech Stack** | Python, Flask, SQLite, HTML/CSS/JS |
+| **Tech Stack** | Python, Flask, PostgreSQL, HTML/CSS/JS |
 | **Started** | March 2026 |
 | **Status** | Active |
 | **Primary AI Tools** | Claude Code, Cursor |
@@ -103,6 +103,42 @@ Both models should log decisions — not just the model that made them. If Curso
   - **Key finding:** Issue ID (large integer from API response) vs issue number (#8) — sub-issue and dependency APIs require the ID, not the number
   - **Key finding:** Fine-grained PATs need explicit "Issues: Read and write" permission for label and assignment updates
 - **Outcome:** All design assumptions validated. Guide written to `.workflow/github-issues-coordination.md`. Workflow docs updated. Ready for Cursor and operators to review.
+
+### Workflow Refinements
+
+**Summary:** DRY up workflow docs, add issue attribution, codebase audit
+**Sessions:** 5
+**Phase:** Spec
+**AI Tools:** Claude Code
+
+---
+
+#### DRY Up Entry Points (Cursor Suggestion #5)
+- **Type:** decision
+- **Category:** process
+- **Context:** Cursor's workflow review identified that `CLAUDE.md` and `.cursorrules` both restated the same rules (coordination, conflict avoidance, tracking, code changes), creating drift risk as both models edit them over time.
+- **Chosen path:** Slim both entry points to model-specific settings only (~32 lines each, down from ~60). All shared rules live in `.workflow/` as the single source of truth.
+- **Alternatives:** (1) Keep duplication and manually sync — error-prone and unsustainable. (2) Single shared config — doesn't work because each model needs its own entry point file.
+- **Why this path:** Eliminates duplication entirely. Each model still has its own entry point with model-specific info (name, operator, branch prefix, label) but reads shared rules from one place.
+- **Outcome:** Implemented in PR #13
+
+#### Serialize Workflow Doc Changes (Cursor Suggestion #8)
+- **Type:** decision
+- **Category:** process
+- **Context:** Cursor flagged that workflow docs (`.cursorrules`, `CLAUDE.md`, `.workflow/` files) are themselves a conflict surface. If one model updates workflow while the other follows it, behavior becomes unpredictable.
+- **Chosen path:** Explicit rule in `How We Work.md`: changes to entry points or `.workflow/` files are always single-model, serialized operations. Never parallel.
+- **Alternatives:** (1) No rule, rely on operators to coordinate verbally — fragile. (2) Lock workflow files to one model — too restrictive.
+- **Why this path:** Simple, low-overhead rule that prevents the specific problem without over-constraining.
+- **Outcome:** Implemented in PR #13
+
+#### Created-By Labels for Issue Attribution
+- **Type:** decision
+- **Category:** process
+- **Context:** Needed a way to track which AI model created each GitHub Issue, separate from which model works on it. The existing `claude-code` and `cursor` labels track ownership/assignment.
+- **Chosen path:** New `created-by:claude-code` and `created-by:cursor` labels, applied at issue creation time. Documented in coordination guide.
+- **Alternatives:** (1) Use issue body text to note creator — not filterable. (2) Use assignee — conflicts with "who's working on it."
+- **Why this path:** Labels are filterable, visible at a glance, and don't conflict with the existing ownership labels.
+- **Outcome:** Labels created, coordination guide updated, applied to all 26 issues from codebase audit.
 
 ---
 
