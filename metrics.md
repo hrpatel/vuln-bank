@@ -7,7 +7,7 @@
 | **Project Name** | Vuln Bank |
 | **Repository** | https://github.com/hrpatel/vuln-bank |
 | **Tracking Since** | March 6, 2026 |
-| **Last Updated** | March 9, 2026 (Session 4) |
+| **Last Updated** | March 10, 2026 (Session 5) |
 
 ---
 
@@ -57,6 +57,7 @@
 | 2 | Mar 9 | ~20 min | 0 | 0 | Align workflow docs with Meta Tracker data model | Spec | collaborative | michael | Planning | Claude Code |
 | 3 | Mar 9 | ~1.5 hr | 1 | 1 | Repo migration, workflow alignment PR, Cursor review intake | Spec | collaborative | michael | Planning | Claude Code |
 | 4 | Mar 9 | ~1 hr | 1 | 2 | GitHub Issues POC, coordination guide, workflow doc updates | Spec | collaborative | michael | Planning | Claude Code |
+| 5 | Mar 10 | -- | 0 | 0 | Created .archive/, moved obsolete workflow artifacts (tasks/, workflow-suggestions-cursor.md, REVIEW-REQUEST.md), updated workflow docs | Spec | ai | coworker | Planning | Cursor |
 
 ### Field Definitions
 
@@ -82,6 +83,7 @@ These fields align with the Meta Tracker data model so sessions feed directly in
 | 04 | Claude Code | #3 | +111 | Workflow docs alignment (repo migration) |
 | -- | Cursor | #5 | +151 | Workflow review and suggestions |
 | 05 | Claude Code | #11 | +265 | GitHub Issues coordination guide, POC validation, workflow doc updates |
+| -- | Cursor | -- | -- | .archive/ created; moved tasks/, workflow-suggestions-cursor.md, REVIEW-REQUEST.md; updated .workflow/ and STATUS |
 
 Both models should log their work here so activity across Claude Code and Cursor is visible in one place.
 

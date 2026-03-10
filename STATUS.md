@@ -1,10 +1,10 @@
 # Vuln Bank — Current Status
 
-**Last updated:** March 9, 2026
+**Last updated:** March 10, 2026
 **Repo:** https://github.com/hrpatel/vuln-bank
 **Live site:** N/A (runs locally via Docker)
 **Current phase:** Spec
-**Current state:** Task #05 in progress — GitHub Issues coordination system designed, POC validated, guide written. Awaiting Cursor/operator review before full switchover.
+**Current state:** Workflow cleanup complete. Obsolete workflow artifacts moved to `.archive/`; live docs updated to reference GitHub Issues and `.archive` paths.
 
 ---
 
@@ -25,6 +25,7 @@ A deliberately vulnerable banking application designed for practicing security t
 
 ## Recent Work
 
+- **Cursor session (Mar 10):** Created `.archive/` and moved obsolete workflow artifacts — `tasks/`, `workflow-suggestions-cursor.md`, `REVIEW-REQUEST.md`. Added `.archive/README.md` and `.archive/tasks/done/`. Updated `.workflow/` docs and `STATUS.md` to use `.archive` paths and GitHub Issues as coordination layer.
 - **Session 34:** GitHub Issues POC validated — sub-issues, dependencies, labels, claiming, signaling all work. Coordination guide written (`.workflow/github-issues-coordination.md`). All workflow docs updated to reference Issues instead of task index. (PR #11)
 - **Session 33:** Designed GitHub Issues coordination system to replace file-based task index (decisions.md updated)
 - Cursor reviewed workflow and identified 9 improvement areas (see `.archive/workflow-suggestions-cursor.md`)
