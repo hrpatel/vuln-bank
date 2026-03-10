@@ -7,7 +7,7 @@
 | **Project Name** | Vuln Bank |
 | **Repository** | https://github.com/hrpatel/vuln-bank |
 | **Tracking Since** | March 6, 2026 |
-| **Last Updated** | March 9, 2026 (Session 4) |
+| **Last Updated** | March 10, 2026 (Session 5) |
 
 ---
 
@@ -17,6 +17,7 @@
 |---------|------|-------------|---------------|------------|-------------------|
 | 1 | Mar 6 | 629 | 0 | +629 | Workflow setup (non-code) |
 | 4 | Mar 9 | 323 | 58 | +265 | .workflow/github-issues-coordination.md, CLAUDE.md, .cursorrules, How We Work.md, START HERE.md, decisions.md |
+| 5 | Mar 10 | 39 | 88 | -49 | CLAUDE.md, .cursorrules, How We Work.md, START HERE.md, github-issues-coordination.md |
 
 ---
 
@@ -28,6 +29,7 @@
 | 1 | Mar 6 | 1 | -- | 1 | Claude Code | 10 min | ~10 min | PR #2: Review request |
 | 3 | Mar 9 | 1 | 1 | 2 | Claude Code | -- | -- | PR #3: Workflow alignment (9 files) |
 | 4 | Mar 9 | 1 | -- | 1 | Claude Code | -- | ~1 hr | PR #11: GitHub Issues coordination guide + workflow updates (6 files) |
+| 5 | Mar 10 | 1 | -- | 2 | Claude Code | -- | -- | PR #13: DRY entry points + serialize workflow changes (4 files) |
 
 ---
 
@@ -44,7 +46,7 @@
 |-----------|---------|----------|-------|
 | Python | 3.x | Core | Flask application |
 | Flask | -- | Core | Web framework |
-| SQLite | -- | Core | Database |
+| PostgreSQL | 13 | Core | Database (via Docker) |
 | Docker | -- | Build | Containerization |
 
 ---
@@ -57,6 +59,7 @@
 | 2 | Mar 9 | ~20 min | 0 | 0 | Align workflow docs with Meta Tracker data model | Spec | collaborative | michael | Planning | Claude Code |
 | 3 | Mar 9 | ~1.5 hr | 1 | 1 | Repo migration, workflow alignment PR, Cursor review intake | Spec | collaborative | michael | Planning | Claude Code |
 | 4 | Mar 9 | ~1 hr | 1 | 2 | GitHub Issues POC, coordination guide, workflow doc updates | Spec | collaborative | michael | Planning | Claude Code |
+| 5 | Mar 10 | -- | 1 | 2 | DRY entry points, created-by labels, codebase audit, 26 issues created | Spec | collaborative | michael | Planning | Claude Code |
 
 ### Field Definitions
 
@@ -82,6 +85,7 @@ These fields align with the Meta Tracker data model so sessions feed directly in
 | 04 | Claude Code | #3 | +111 | Workflow docs alignment (repo migration) |
 | -- | Cursor | #5 | +151 | Workflow review and suggestions |
 | 05 | Claude Code | #11 | +265 | GitHub Issues coordination guide, POC validation, workflow doc updates |
+| -- | Claude Code | #13 | -49 | DRY entry points, serialize workflow changes, created-by labels |
 
 Both models should log their work here so activity across Claude Code and Cursor is visible in one place.
 
