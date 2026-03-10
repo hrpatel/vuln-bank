@@ -10,18 +10,21 @@
 | Session | Date | Duration (approx) | PRs | Decisions | Focus Area | Phase | Driver | Operator | Work Category | Tool | Bugs Fixed |
 |---------|------|--------------------|-----|-----------|------------|-------|--------|----------|---------------|------|------------|
 | 8 | Mar 10 | -- | 0 | 0 | SDElements: vuln-bank project, Django profile (P5), survey bias (auth/encryption/compliance), profile doc; branch cursor/50 | Spec | ai | coworker | Planning | Cursor | 0 |
+| 9 | Mar 10 | -- | 1 | 0 | SDE countermeasures: claimed GH #100 #80 #97 #99 #83 (T38 T36 T338 T2139 T1144); implemented T38 parameterized SQL; verified T36/T338/T1144; T2139 Incomplete by design + SDE note; PR #103 | Build | ai | coworker | Feature | Cursor | 0 |
 
 ## Code Volume
 
 | Session | Date | Lines Added | Lines Deleted | Net Change | Key Files Changed |
 |---------|------|-------------|---------------|------------|-------------------|
 | 8 | Mar 10 | ~46 | 0 | +46 | STATUS.md, docs/sdelements-profile-and-assumptions.md (new) |
+| 9 | Mar 10 | ~95 | ~109 | -14 | auth.py, app.py (T38 SQL binding); STATUS.md |
 
 ## PR Activity
 
 | Session | Date | PRs Created | PRs Merged | Commits | Notes |
 |---------|------|-------------|------------|---------|-------|
 | 8 | Mar 10 | 0 | 0 | 1 | cursor/50-sdelements-profile-assumptions: SDE profile + doc; metrics this commit |
+| 9 | Mar 10 | 1 | 0 | 2 | PR #103 cursor/05-sde-countermeasures: SDE countermeasures + STATUS |
 
 ## Bugs Found/Fixed
 
