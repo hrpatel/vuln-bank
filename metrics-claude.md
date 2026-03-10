@@ -9,21 +9,29 @@
 
 | Session | Date | Duration (approx) | PRs | Decisions | Focus Area | Phase | Driver | Operator | Work Category | Tool | Bugs Fixed |
 |---------|------|--------------------|-----|-----------|------------|-------|--------|----------|---------------|------|------------|
+| 8 | Mar 10 | -- | 3 | 1 | Fixed 4 bugs (#21, #22, #26, #36), Meta Tracker sync, session close-out workflow (#55) | Build | collaborative | michael | Bug | Claude Code | #21, #22, #26, #36 |
 
 ## Code Volume
 
 | Session | Date | Lines Added | Lines Deleted | Net Change | Key Files Changed |
 |---------|------|-------------|---------------|------------|-------------------|
+| 8 | Mar 10 | 159 | 41 | +118 | README.md, app.py, auth.py, Dockerfile, openapi.json, index.html, metrics-claude.md, metrics-cursor.md, START HERE.md, How We Work.md, metrics.md |
 
 ## PR Activity
 
 | Session | Date | PRs Created | PRs Merged | Commits | Notes |
 |---------|------|-------------|------------|---------|-------|
+| 8 | Mar 10 | 1 | -- | 2 | PR #53: Fix 4 bugs (Commando-X refs, debug prints, dead SQLite, upload perms) |
+| 8 | Mar 10 | 1 | 1 | 1 | PR #56: Session close-out workflow + split metrics files (#55) |
 
 ## Bugs Found/Fixed
 
 | # | Date Found | Summary | Severity | Source | Resolution | Session Fixed |
 |---|-----------|---------|----------|--------|------------|---------------|
+| #21 | Mar 10 | Commando-X repo references throughout codebase | Medium | Codebase audit | Fixed (PR #53) | 8 |
+| #22 | Mar 10 | Dead SQLite code in auth.py — 3 endpoints crash at runtime | High | Codebase audit | Fixed (PR #53) | 8 |
+| #26 | Mar 10 | Overly permissive uploads directory (chmod 777) | Low | Codebase audit | Fixed (PR #53) | 8 |
+| #36 | Mar 10 | Debug prints exposing usernames, SQL queries, JWT tokens | Medium | Codebase audit | Fixed (PR #53) | 8 |
 
 ---
 
