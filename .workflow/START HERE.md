@@ -58,12 +58,13 @@ GitHub Issues support native dependency tracking:
 
 ## Task Completion Checklist
 
-1. **Issue closed** — close the GitHub Issue.
-2. **Downstream unblocked** — check what the closed issue was blocking; flip newly-unblocked issues from `blocked` to `available`.
-3. **Completion comment** — leave a comment noting the PR number and any issues unblocked.
-4. **Metrics updated** — if code was shipped, update `metrics.md`.
-5. **Decisions updated** — if a significant decision was made, update `decisions.md`.
-6. **STATUS.md updated** — reflect the current project state.
+1. **Rebase on main before closing** — when closing a session: fetch and rebase (`git fetch origin main && git rebase origin/main`), resolve any conflicts, then commit and push; use `git push --force-with-lease origin <branch>` if the branch was already pushed. Verify the PR shows no conflicts.
+2. **Issue closed** — close the GitHub Issue.
+3. **Downstream unblocked** — check what the closed issue was blocking; flip newly-unblocked issues from `blocked` to `available`.
+4. **Completion comment** — leave a comment noting the PR number and any issues unblocked.
+5. **Metrics updated** — if code was shipped, update `metrics.md`.
+6. **Decisions updated** — if a significant decision was made, update `decisions.md`.
+7. **STATUS.md updated** — reflect the current project state.
 
 ## Review Cadence
 
@@ -88,4 +89,4 @@ GitHub Issues support native dependency tracking:
 
 ---
 
-*Adapt these guidelines to your workflow. Last updated: March 9, 2026.*
+*Adapt these guidelines to your workflow. Last updated: March 10, 2026.*
