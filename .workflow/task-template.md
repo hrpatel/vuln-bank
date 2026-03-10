@@ -34,4 +34,4 @@
 
 ---
 
-*When complete: update STATUS.md, decisions.md (if a decision was made), metrics.md (if code was shipped), and tasks/index.md.*
+*When complete: update STATUS.md, decisions.md (if a decision was made), metrics.md (if code was shipped). Optionally save a snapshot to `.archive/tasks/done/` for reference.*

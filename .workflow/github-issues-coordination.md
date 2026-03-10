@@ -14,7 +14,7 @@ Every task is a GitHub Issue. The issue body contains the spec (acceptance crite
 
 ### Task Files Are Archival
 
-When an issue closes, a snapshot can be saved to `tasks/done/` for offline/portfolio reference. Task files are no longer the coordination mechanism — Issues are.
+When an issue closes, a snapshot can be saved to `.archive/tasks/done/` for offline/portfolio reference. Task files are no longer the coordination mechanism — Issues are.
 
 ---
 
@@ -212,9 +212,7 @@ Labels must be kept in sync manually. The key transitions:
 
 ## Migration Notes
 
-The old `tasks/index.md` file remains in the repo as a historical reference but is **no longer the coordination mechanism**. Both `CLAUDE.md` and `.cursorrules` now direct models to check GitHub Issues first.
-
-Existing task files in `tasks/` are kept for reference. New work should be created as GitHub Issues, not task files.
+The old task index and task files have been moved to `.archive/tasks/` and are **no longer the coordination mechanism**. Both `CLAUDE.md` and `.cursorrules` direct models to check GitHub Issues first. New work should be created as GitHub Issues, not task files.
 
 ---
 

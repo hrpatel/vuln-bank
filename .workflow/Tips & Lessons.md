@@ -6,7 +6,7 @@ Hard-won knowledge from AI-assisted development. Add new entries as you discover
 
 ## Multi-Model Coordination
 
-- **The task index is the lock.** Before starting any work, read `tasks/index.md`. If another model has an In Progress task touching the same files, pick something else.
+- **GitHub Issues are the coordination layer.** Before starting any work, check `gh issue list --repo hrpatel/vuln-bank` for in-progress work. If another model has an issue that touches the same files, pick something else.
 - **Branch naming signals ownership.** Use `claude/` or `cursor/` prefixes so it's obvious who's working where.
 - **File-level granularity is enough.** You don't need line-level locking — if two tasks touch the same file, they conflict. Keep tasks scoped to avoid this.
 - **Update the index immediately.** Claim your task before you start coding, not after. The gap between "I decided to work on this" and "I updated the index" is where collisions happen.
