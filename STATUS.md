@@ -3,7 +3,7 @@
 **Last updated:** March 10, 2026
 **Repo:** https://github.com/hrpatel/vuln-bank
 **Live site:** N/A (runs locally via Docker)
-**Current phase:** Spec
+**Current phase:** Build
 **Current state:** Workflow cleanup complete. Obsolete workflow artifacts moved to `.archive/`; live docs updated to reference GitHub Issues and `.archive` paths.
 
 ---
@@ -26,6 +26,7 @@ A deliberately vulnerable banking application designed for practicing security t
 ## Recent Work
 
 - **Cursor session (Mar 10):** Created `.archive/` and moved obsolete workflow artifacts — `tasks/`, `workflow-suggestions-cursor.md`, `REVIEW-REQUEST.md`. Added `.archive/README.md` and `.archive/tasks/done/`. Updated `.workflow/` docs and `STATUS.md` to use `.archive` paths and GitHub Issues as coordination layer.
+- **Session 8 (Mar 10):** Fixed 4 bugs (#21, #22, #26, #36) in PR #53. Added session close-out workflow with split metrics files (PR #56). Meta Tracker synced with all sessions including Cursor's.
 - **Session 34:** GitHub Issues POC validated — sub-issues, dependencies, labels, claiming, signaling all work. Coordination guide written (`.workflow/github-issues-coordination.md`). All workflow docs updated to reference Issues instead of task index. (PR #11)
 - **Session 33:** Designed GitHub Issues coordination system to replace file-based task index (decisions.md updated)
 - Cursor reviewed workflow and identified 9 improvement areas (see `.archive/workflow-suggestions-cursor.md`)
@@ -42,7 +43,8 @@ A deliberately vulnerable banking application designed for practicing security t
 - **Two AI models working in parallel:**
   - Claude Code (CLI) — operated by Michael
   - Cursor — operated by coworker
-- Coordination via GitHub Issues (replacing file-based task index — see `.workflow/github-issues-coordination.md`)
+- Coordination via GitHub Issues (see `.workflow/github-issues-coordination.md`)
+- Metrics: split files per model (`metrics-claude.md`, `metrics-cursor.md`), Claude Code merges into `metrics.md`
 
 ---
 
