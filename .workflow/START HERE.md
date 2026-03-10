@@ -26,12 +26,11 @@ A few minutes of research before implementing saves multiple iteration cycles af
 
 ## How to Start a Session
 
-1. Read this file (you're doing it now).
-2. Read `CLAUDE.md` (if you're Claude Code) or `.cursorrules` (if you're Cursor) for model-specific instructions.
-3. Check `STATUS.md` for current project state.
-4. **Check GitHub Issues** for available work: `gh issue list --repo hrpatel/vuln-bank --label available`. If there are available issues, pick one that doesn't conflict with any `in-progress` work.
-5. If no issues are available, ask your operator what to work on.
-6. For the full coordination guide, see `.workflow/github-issues-coordination.md`.
+1. Read your entry point (`CLAUDE.md` or `.cursorrules`) — it brought you here.
+2. Check `STATUS.md` for current project state.
+3. **Check GitHub Issues** for available work: `gh issue list --repo hrpatel/vuln-bank --label available`. If there are available issues, pick one that doesn't conflict with any `in-progress` work.
+4. If no issues are available, ask your operator what to work on.
+5. For the full coordination guide, see `.workflow/github-issues-coordination.md`.
 
 ## Task Workflow
 
