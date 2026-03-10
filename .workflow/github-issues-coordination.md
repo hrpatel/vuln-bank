@@ -59,27 +59,31 @@ For Cursor, use `cursor` instead of `claude-code` in the label.
 
 ### Completing a Task
 
-```bash
-# 1. Close the issue
-gh api repos/hrpatel/vuln-bank/issues/{N} -X PATCH -f state=closed
+Do **not** close the issue when you create the PR. The issue is closed when the PR is merged (by the human operator or by automation, e.g. "Fixes #N" in the PR body).
 
-# 2. Check what this issue was blocking
+```bash
+# 1. Create or update the PR (do NOT close the issue)
+
+# 2. Leave a completion comment on the issue
+gh api repos/hrpatel/vuln-bank/issues/{N}/comments -X POST \
+  -f body="**[Claude Code]** PR #__ ready for review/merge. Issue will close when PR is merged."
+```
+
+When the **PR is merged**, the person merging should:
+- Rely on automation to close the issue if the PR body contains `Fixes #N`, or close the issue manually.
+- Check what the closed issue was blocking and flip any newly-unblocked issues from `blocked` to `available` (see dependency commands below).
+
+```bash
+# After merge: what did issue N block?
 gh api repos/hrpatel/vuln-bank/issues/{N}/dependencies/blocking \
   --jq '.[] | {number: .number, title: .title}'
 
-# 3. For each downstream issue, check if ALL its blockers are now closed
-gh api repos/hrpatel/vuln-bank/issues/{DOWNSTREAM}/dependencies/blocked_by \
-  --jq '[.[] | select(.state == "open")] | length'
-# If the result is 0, all blockers are resolved — flip it to available:
+# For each downstream issue, if all blockers are now closed, flip to available:
 gh api repos/hrpatel/vuln-bank/issues/{DOWNSTREAM} -X PATCH \
   -f "labels[]=available"
-
-# 4. Leave a completion comment
-gh api repos/hrpatel/vuln-bank/issues/{N}/comments -X POST \
-  -f body="**[Claude Code]** Done. PR #__ ready for merge. Unblocked #__."
 ```
 
-> **Important:** Closing a blocker does NOT auto-update downstream labels. The completing model must check and flip `blocked` to `available` on any issue that is now unblocked. This is typically 2-3 API calls.
+> **Important:** Downstream labels are not updated automatically. When a PR is merged and its issue is closed, the person who merged (or a follow-up) should flip any unblocked issues from `blocked` to `available`.
 
 ### Cross-Model Signaling
 
@@ -206,8 +210,8 @@ Labels must be kept in sync manually. The key transitions:
 |-------|-------------|-------------|
 | Task created | Set `available` (or `blocked` if it has open dependencies) + `created-by:<model>` | Creator |
 | Task claimed | `available` -> `in-progress` + model label | Claiming model |
-| Task completed | Issue closed | Completing model |
-| Blocker resolved | `blocked` -> `available` on downstream issues | Completing model |
+| Task completed (PR merged) | Issue closed | Human / automation on merge |
+| Blocker resolved | `blocked` -> `available` on downstream issues | Human when merging PR (or follow-up) |
 | Task abandoned | `in-progress` -> `available`, remove assignment | Either operator |
 
 ---
