@@ -106,6 +106,12 @@ The creating model should review its own diff before flagging the PR as ready. C
 
 Every significant decision gets logged in `decisions.md`. This creates a record of how the project evolved, useful for both models and both operators.
 
+## Workflow Doc Changes
+
+Changes to `.cursorrules`, `CLAUDE.md`, or any file in `.workflow/` are **always single-model, serialized operations**. Never run two tasks that modify workflow docs in parallel. These files are read by both models at session start — concurrent edits create unpredictable behavior and guaranteed merge conflicts.
+
+If your task needs to update workflow docs and another model has an `in-progress` issue that also touches workflow docs, wait for theirs to merge first.
+
 ## Iteration Patterns
 
 1. **Small, targeted PRs** — one concern per PR
