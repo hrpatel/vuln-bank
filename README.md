@@ -128,7 +128,7 @@ This project is a simple banking application with multiple security vulnerabilit
 #### Using Docker Compose (Easiest)
 1. Clone the repository:
 ```bash
-git clone https://github.com/Commando-X/vuln-bank.git
+git clone https://github.com/hrpatel/vuln-bank.git
 cd vuln-bank
 ```
 
@@ -142,7 +142,7 @@ The application will be available at `http://localhost:5000`
 #### Using Docker Only
 1. Clone the repository:
 ```bash
-git clone https://github.com/Commando-X/vuln-bank.git
+git clone https://github.com/hrpatel/vuln-bank.git
 cd vuln-bank
 ```
 
@@ -167,7 +167,7 @@ docker run -p 5000:5000 vuln-bank
 #### Steps
 1. Clone the repository:
 ```bash
-git clone https://github.com/Commando-X/vuln-bank.git
+git clone https://github.com/hrpatel/vuln-bank.git
 cd vuln-bank
 ```
 

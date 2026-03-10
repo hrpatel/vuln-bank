@@ -16,7 +16,7 @@ RUN mkdir -p static/uploads templates
 COPY . .
 
 # Ensure uploads directory exists and has proper permissions
-RUN chmod 777 static/uploads
+RUN chmod 755 static/uploads
 
 EXPOSE 5000
 

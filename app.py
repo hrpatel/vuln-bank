@@ -279,23 +279,13 @@ def login():
             username = data.get('username')
             password = data.get('password')
             
-            print(f"Login attempt - Username: {username}")  # Debug print
-            
             # SQL Injection vulnerability (intentionally vulnerable)
             query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
-            print(f"Debug - Login query: {query}")  # Debug print
-            
             user = execute_query(query)
-            print(f"Debug - Query result: {user}")  # Debug print
-            
             if user and len(user) > 0:
                 user = user[0]  # Get first row
-                print(f"Debug - Found user: {user}")  # Debug print
-                
                 # Generate JWT token instead of using session
                 token = generate_token(user[0], user[1], user[5])
-                print(f"Debug - Generated token: {token}")  # Debug print
-                
                 response = make_response(jsonify({
                     'status': 'success',
                     'message': 'Login successful',
