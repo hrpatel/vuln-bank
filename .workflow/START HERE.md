@@ -66,6 +66,33 @@ GitHub Issues support native dependency tracking:
 6. **Decisions updated** — if a significant decision was made, update `decisions.md`.
 7. **STATUS.md updated** — reflect the current project state.
 
+## Session Close-Out
+
+When your operator says "close this session" (or equivalent), follow these steps:
+
+1. **Finish or pause current work** — commit, push, and create/update PRs for any in-progress tasks.
+2. **Update your metrics file** — add a session row to your model's file:
+   - Claude Code → `metrics-claude.md`
+   - Cursor → `metrics-cursor.md`
+   - Include: session number, date, duration, PRs, decisions, focus area, phase, driver, operator, work category, bugs fixed.
+   - Add code volume and PR activity rows as applicable.
+3. **Update `decisions.md`** — if any significant decisions were made this session.
+4. **Update `STATUS.md`** — reflect the current project state.
+5. **Release claimed issues** — any `in-progress` issues you didn't finish should be relabeled `available` so the other model can pick them up.
+6. **Commit and PR** — push your metrics/docs update as part of your final PR, or as a separate close-out PR.
+
+> **Do not edit `metrics.md` directly.** Each model writes to its own file. Claude Code is the merger — it combines both files into `metrics.md` (master) and syncs to Meta Tracker.
+
+### Metrics Merge (Claude Code only)
+
+At session start or close-out, Claude Code checks for unsynced data:
+1. Pull latest `metrics-cursor.md` — if Cursor added sessions since last merge, incorporate them.
+2. Pull latest `metrics-claude.md` — include own session data.
+3. Merge both into `metrics.md` (the master file).
+4. Push updated data to Meta Tracker (`vulnBankMetrics.ts` + `vulnBankProject.ts`).
+
+This can happen at any natural breakpoint — no need to wait for the other model.
+
 ## Review Cadence
 
 **After every 2-3 merges**, do a quick review pass:

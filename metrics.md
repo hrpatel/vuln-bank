@@ -9,6 +9,9 @@
 | **Tracking Since** | March 6, 2026 |
 | **Last Updated** | March 10, 2026 (Session 7) |
 
+
+> **This is the merged master.** Do not edit directly. Each model writes to `metrics-claude.md` or `metrics-cursor.md`. Claude Code merges both into this file and syncs to Meta Tracker.
+
 ---
 
 ## 1. Code Volume

@@ -106,6 +106,26 @@ The creating model should review its own diff before flagging the PR as ready. C
 
 Every significant decision gets logged in `decisions.md`. This creates a record of how the project evolved, useful for both models and both operators.
 
+## Metrics & Session Tracking
+
+### Split Metrics Files
+
+To avoid merge conflicts on shared metrics, each model writes to its own file:
+
+| File | Owner | Purpose |
+|------|-------|---------|
+| `metrics-claude.md` | Claude Code | Claude Code's session logs |
+| `metrics-cursor.md` | Cursor | Cursor's session logs |
+| `metrics.md` | Claude Code (merger) | Merged master — do not edit directly |
+
+Both per-model files use identical fields that match the Meta Tracker data model. This ensures reliable sync to the dashboard.
+
+### Who Merges
+
+**Claude Code is always the merger.** It combines both model files into `metrics.md` and pushes to Meta Tracker. This happens opportunistically — at session start if there's unsynced Cursor data, or at session close-out.
+
+Neither model should edit `metrics.md` directly. If you need to correct a past entry, edit it in your own metrics file and let the merge process update the master.
+
 ## Workflow Doc Changes
 
 Changes to `.cursorrules`, `CLAUDE.md`, or any file in `.workflow/` are **always single-model, serialized operations**. Never run two tasks that modify workflow docs in parallel. These files are read by both models at session start — concurrent edits create unpredictable behavior and guaranteed merge conflicts.
