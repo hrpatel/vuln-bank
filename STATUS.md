@@ -27,7 +27,7 @@ A deliberately vulnerable banking application designed for practicing security t
 
 - **Session 34:** GitHub Issues POC validated — sub-issues, dependencies, labels, claiming, signaling all work. Coordination guide written (`.workflow/github-issues-coordination.md`). All workflow docs updated to reference Issues instead of task index. (PR #11)
 - **Session 33:** Designed GitHub Issues coordination system to replace file-based task index (decisions.md updated)
-- Cursor reviewed workflow and identified 9 improvement areas (workflow-suggestions-cursor.md)
+- Cursor reviewed workflow and identified 9 improvement areas (see `.archive/workflow-suggestions-cursor.md`)
 - Repo migrated: removed fork association with Commando-X/vuln-bank, recreated as standalone
 - Aligned workflow docs with Meta Tracker data model (PR #3, 9 files)
 - Task #01 done — vuln-bank added to Meta Tracker dashboard (PR #77 in meta-tracker repo)
