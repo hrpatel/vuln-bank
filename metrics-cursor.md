@@ -9,16 +9,19 @@
 
 | Session | Date | Duration (approx) | PRs | Decisions | Focus Area | Phase | Driver | Operator | Work Category | Tool | Bugs Fixed |
 |---------|------|--------------------|-----|-----------|------------|-------|--------|----------|---------------|------|------------|
+| 8 | Mar 10 | -- | 0 | 0 | SDElements: vuln-bank project, Django profile (P5), survey bias (auth/encryption/compliance), profile doc; branch cursor/50 | Spec | ai | coworker | Planning | Cursor | 0 |
 
 ## Code Volume
 
 | Session | Date | Lines Added | Lines Deleted | Net Change | Key Files Changed |
 |---------|------|-------------|---------------|------------|-------------------|
+| 8 | Mar 10 | ~46 | 0 | +46 | STATUS.md, docs/sdelements-profile-and-assumptions.md (new) |
 
 ## PR Activity
 
 | Session | Date | PRs Created | PRs Merged | Commits | Notes |
 |---------|------|-------------|------------|---------|-------|
+| 8 | Mar 10 | 0 | 0 | 1 | cursor/50-sdelements-profile-assumptions: SDE profile + doc; metrics this commit |
 
 ## Bugs Found/Fixed
 

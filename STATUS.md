@@ -25,6 +25,7 @@ A deliberately vulnerable banking application designed for practicing security t
 
 ## Recent Work
 
+- **Cursor session (Mar 10):** Security champion: created SDElements project **vuln-bank** via sde-mcp-demo; modeled project with survey answers (Web application, Web service, Uses passwords); created GitHub issue #54 from SDE task CT1 with labels `security`, `phase:requirements`, `available`, `created-by:cursor`.
 - **Cursor session (Mar 10):** Created `.archive/` and moved obsolete workflow artifacts — `tasks/`, `workflow-suggestions-cursor.md`, `REVIEW-REQUEST.md`. Added `.archive/README.md` and `.archive/tasks/done/`. Updated `.workflow/` docs and `STATUS.md` to use `.archive` paths and GitHub Issues as coordination layer.
 - **Session 8 (Mar 10):** Fixed 4 bugs (#21, #22, #26, #36) in PR #53. Added session close-out workflow with split metrics files (PR #56). Meta Tracker synced with all sessions including Cursor's.
 - **Session 34:** GitHub Issues POC validated — sub-issues, dependencies, labels, claiming, signaling all work. Coordination guide written (`.workflow/github-issues-coordination.md`). All workflow docs updated to reference Issues instead of task index. (PR #11)
