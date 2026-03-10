@@ -36,6 +36,7 @@ Both models:
 | `blocked` | Has unresolved dependencies |
 | `claude-code` | Owned by Claude Code |
 | `cursor` | Owned by Cursor |
+| `completed` | Work finished and merged |
 
 > **Historical note:** `tasks/index.md` was the original coordination mechanism but had a visibility gap — both models edited it on branches, so neither could see the other's claims. Issues solve this by being branch-independent.
 
