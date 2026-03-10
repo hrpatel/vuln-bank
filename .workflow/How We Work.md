@@ -19,7 +19,7 @@ Both operators:
 Both models:
 - Read the workflow docs at session start
 - Check for conflicts before starting work
-- Claim tasks in the index before working on them
+- Claim tasks via GitHub Issues before working on them
 - Create PRs for all code changes
 - Never merge, never push directly to main
 
@@ -59,7 +59,7 @@ Example: `claude/03-add-xss-scenario`, `cursor/04-update-auth-tests`
 ### Handling Conflicts
 
 If both models accidentally start tasks that touch the same files:
-1. The model that started **second** (later timestamp in the index) yields
+1. The model that started **second** (later claiming timestamp on the issue) yields
 2. That model stashes or shelves its work
 3. Wait for the first model's PR to merge
 4. Rebase and continue

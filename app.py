@@ -144,8 +144,8 @@ def ai_rate_limit(f):
                     
                     # Both checks passed, proceed with authenticated function
                     return f(*args, **kwargs)
-            except:
-                pass  # Fall through to unauthenticated handling
+            except Exception:
+                pass  # Token verification failed — fall through to unauthenticated handling
         
         # Unauthenticated mode: rate limit by IP only
         ip_key = f"ai_unauth_ip_{client_ip}"
@@ -2037,8 +2037,8 @@ def ai_rate_limit_status():
                         'user_id': user_data['user_id'],
                         'username': user_data['username']
                     }
-            except:
-                pass  # Token invalid, stay with unauthenticated status
+            except Exception:
+                pass  # Token invalid — stay with unauthenticated status
         
         return jsonify(status)
         
