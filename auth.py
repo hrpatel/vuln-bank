@@ -112,9 +112,11 @@ def init_auth_routes(app):
         if not auth or not auth.get('username') or not auth.get('password'):
             return jsonify({'error': 'Missing credentials'}), 401
             
-        # Vulnerability: SQL Injection still possible here
-        query = f"SELECT * FROM users WHERE username='{auth.get('username')}' AND password='{auth.get('password')}'"
-        result = execute_query(query)
+        # T38: Use parameterized query to prevent SQL injection
+        result = execute_query(
+            "SELECT * FROM users WHERE username = %s AND password = %s",
+            (auth.get('username'), auth.get('password'))
+        )
         user = result[0] if result else None
         
         if not user:
@@ -144,7 +146,10 @@ def init_auth_routes(app):
         # Any valid token can check any account balance
         account_number = request.args.get('account_number')
         
-        result = execute_query(f"SELECT username, balance FROM users WHERE account_number='{account_number}'")
+        result = execute_query(
+            "SELECT username, balance FROM users WHERE account_number = %s",
+            (account_number,)
+        )
         user = result[0] if result else None
         
         if user:
@@ -168,17 +173,28 @@ def init_auth_routes(app):
         to_account = data.get('to_account')
         
         
-        # Vulnerability: Race condition in transfer
-        result = execute_query(f"SELECT balance FROM users WHERE id={current_user['user_id']}")
+        # T38: Parameterized queries for transfer (race condition remains for training)
+        result = execute_query(
+            "SELECT balance FROM users WHERE id = %s",
+            (current_user['user_id'],)
+        )
         balance = result[0][0]
         
         if balance >= amount:
-            # Vulnerability: SQL injection possible in to_account
-            execute_query(f"UPDATE users SET balance = balance - {amount} WHERE id={current_user['user_id']}", fetch=False)
-            execute_query(f"UPDATE users SET balance = balance + {amount} WHERE account_number='{to_account}'", fetch=False)
-            
-            # Vulnerability: Information disclosure
-            result = execute_query(f"SELECT username, balance FROM users WHERE account_number='{to_account}'")
+            execute_query(
+                "UPDATE users SET balance = balance - %s WHERE id = %s",
+                (amount, current_user['user_id']),
+                fetch=False
+            )
+            execute_query(
+                "UPDATE users SET balance = balance + %s WHERE account_number = %s",
+                (amount, to_account),
+                fetch=False
+            )
+            result = execute_query(
+                "SELECT username, balance FROM users WHERE account_number = %s",
+                (to_account,)
+            )
             recipient = result[0]
             
             return jsonify({
