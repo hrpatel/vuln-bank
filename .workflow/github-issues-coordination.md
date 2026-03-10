@@ -29,6 +29,7 @@ When an issue closes, a snapshot can be saved to `.archive/tasks/done/` for offl
 | `cursor` | Blue | Owned by Cursor |
 | `created-by:claude-code` | Purple | Issue was created by Claude Code |
 | `created-by:cursor` | Blue | Issue was created by Cursor |
+| `completed` | Green | Work finished and merged |
 
 ---
 
@@ -69,9 +70,16 @@ gh api repos/hrpatel/vuln-bank/issues/{N}/comments -X POST \
   -f body="**[Claude Code]** PR #__ ready for review/merge. Issue will close when PR is merged."
 ```
 
-When the **PR is merged**, the person merging should:
+When the **PR is merged**, the person merging (or the model at session close-out) should:
 - Rely on automation to close the issue if the PR body contains `Fixes #N`, or close the issue manually.
+- **Swap labels:** replace `in-progress` with `completed` so closed issues don't appear to still be in progress.
 - Check what the closed issue was blocking and flip any newly-unblocked issues from `blocked` to `available` (see dependency commands below).
+
+```bash
+# After merge: swap in-progress → completed
+gh api repos/hrpatel/vuln-bank/issues/{N}/labels/in-progress -X DELETE
+gh api repos/hrpatel/vuln-bank/issues/{N}/labels -X POST -f "labels[]=completed"
+```
 
 ```bash
 # After merge: what did issue N block?
