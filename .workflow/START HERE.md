@@ -62,7 +62,7 @@ GitHub Issues support native dependency tracking:
 2. **PR created or updated** — open or update the PR; do **not** close the GitHub Issue. The issue is closed when the PR is merged (by human or automation).
 3. **Downstream unblocked** — when the PR is merged and the issue is closed, whoever merges flips any newly-unblocked issues from `blocked` to `available` (or document in the PR comment which issues to unblock).
 4. **Completion comment** — leave a comment on the issue noting the PR number and that it is ready for review/merge.
-5. **Metrics updated** — if code was shipped, update `metrics.md`.
+5. **Metrics updated** — on session close, update `metrics.md` (session row, PR/commits, and code volume if applicable).
 6. **Decisions updated** — if a significant decision was made, update `decisions.md`.
 7. **STATUS.md updated** — reflect the current project state.
 
