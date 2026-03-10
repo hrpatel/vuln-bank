@@ -49,8 +49,6 @@ def verify_token(token):
         except:
             return None
     except Exception as e:
-        # Vulnerability: Detailed error exposure in logs
-        print(f"Token verification error: {str(e)}")
         return None
 
 
