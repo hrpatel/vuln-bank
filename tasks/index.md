@@ -6,7 +6,7 @@
 | 02 | Create generic multi-model bootstrap template | Medium | Queued | None | 03 | `.workflow/bootstrap-multi-model.md` | -- | Mar 6 |
 | 03 | Create shared AI learnings & process suggestions doc | Medium | Queued | None | 02 | `.workflow/ai-learnings.md`, `CLAUDE.md`, `.cursorrules` | -- | Mar 6 |
 | 04 | Align workflow docs with Meta Tracker data model | Medium | Done | None | Any non-overlapping | `metrics.md`, `decisions.md`, `REVIEW-REQUEST.md`, `.workflow/How We Work.md`, `.workflow/START HERE.md`, `STATUS.md` | Claude Code | Mar 9 |
-| 05 | Solve multi-model coordination gaps | High | Queued | None | Any non-overlapping | `tasks/index.md`, `.workflow/How We Work.md`, `.workflow/START HERE.md`, `decisions.md`, `CLAUDE.md`, `.cursorrules` | -- | Mar 9 |
+| 05 | Solve multi-model coordination gaps | High | Done | None | Any non-overlapping | `tasks/index.md`, `.workflow/How We Work.md`, `.workflow/START HERE.md`, `decisions.md`, `CLAUDE.md`, `.cursorrules` | Claude Code | Mar 9 |
 
 ---
 
@@ -24,5 +24,7 @@
 **Cursor:** (none currently)
 
 ---
+
+**Note:** This task index is now archival. New work is tracked via [GitHub Issues](https://github.com/hrpatel/vuln-bank/issues). See `.workflow/github-issues-coordination.md` for the current coordination system.
 
 *When tasks are added, number them sequentially. Always check "Files to Edit" against in-progress tasks before starting. Update the "Active Work" section when claiming or completing tasks.*
