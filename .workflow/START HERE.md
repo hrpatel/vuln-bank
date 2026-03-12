@@ -26,7 +26,7 @@ A few minutes of research before implementing saves multiple iteration cycles af
 
 ## How to Start a Session
 
-1. Read your entry point (`CLAUDE.md` or `.cursorrules`) — it brought you here.
+1. Read your entry point — `CLAUDE.md` for CLI agents (e.g. Claude Code), `.cursorrules` for Cursor — it brought you here.
 2. Check `STATUS.md` for current project state.
 3. **Check GitHub Issues** for available work: `gh issue list --repo hrpatel/vuln-bank --label available`. If there are available issues, pick one that doesn't conflict with any `in-progress` work.
 4. If no issues are available, ask your operator what to work on.
@@ -37,7 +37,6 @@ A few minutes of research before implementing saves multiple iteration cycles af
 - **Tasks are GitHub Issues.** The issue body contains the spec, files to edit, and acceptance criteria.
 - Labels and assignments provide real-time status visible from any branch.
 - When you finish a task, create or update the PR and leave a completion comment; do not close the issue. The issue is closed when the PR is merged (by human or automation); downstream issues are unblocked at that time.
-- Optionally save a snapshot to `.archive/tasks/done/` for offline/portfolio reference.
 - Update `STATUS.md`, `decisions.md`, and `metrics.md` as part of completing any task that warrants it.
 
 ## Task Dependencies & Parallel Work

@@ -12,10 +12,6 @@
 
 Every task is a GitHub Issue. The issue body contains the spec (acceptance criteria, files to edit, context). Labels, assignments, and comments provide real-time status that both models can see from any branch.
 
-### Task Files Are Archival
-
-When an issue closes, a snapshot can be saved to `.archive/tasks/done/` for offline/portfolio reference. Task files are no longer the coordination mechanism — Issues are.
-
 ---
 
 ## Labels

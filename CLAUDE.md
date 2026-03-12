@@ -1,22 +1,26 @@
-# Vuln Bank — Claude Code Instructions
+# Vuln Bank — CLI Agent Instructions
+
+**Entry point for CLI-based AI agents.** (Used by Claude Code and other CLI agents. Filename is historical.)
 
 **Read this file, then `.workflow/START HERE.md`. Every session. No exceptions.**
 
 ## Model-Specific Settings
 
-- **You are:** Claude Code (CLI)
-- **Your operator:** Michael
-- **Your branch prefix:** `claude/{##}-{task-slug}`
-- **Your label:** `claude-code`
-- **Other model's label to watch:** `cursor`
+Set these for your agent (example values shown for Claude Code):
+
+- **You are:** [e.g. Claude Code (CLI)]
+- **Your operator:** [e.g. Michael]
+- **Your branch prefix:** [e.g. `claude/{##}-{task-slug}`]
+- **Your label:** [e.g. `claude-code`]
+- **Other model's label to watch:** [e.g. `cursor`]
 
 ## Quick Start
 
 1. Read `.workflow/START HERE.md` for session rules, task workflow, and coordination protocol
 2. Read `STATUS.md` for current project state
 3. Check GitHub Issues for available work: `gh issue list --repo hrpatel/vuln-bank --label available`
-4. Check for issues labeled `in-progress` + `cursor` — avoid file conflicts with those
-5. Pick an available issue or ask Michael what to work on
+4. Check for issues labeled `in-progress` plus the other model's label — avoid file conflicts with those
+5. Pick an available issue or ask your operator what to work on
 
 ## Workflow Reference
 
@@ -25,7 +29,6 @@ All shared rules live in `.workflow/` — that is the single source of truth:
 - `How We Work.md` — roles, coordination protocol, review process
 - `github-issues-coordination.md` — Issues coordination guide, API reference, and hard-problem solutions
 - `Tips & Lessons.md` — practical knowledge from AI-assisted development
-- `task-template.md` — standard format for archival task snapshots
 
 ## Project Context
 
