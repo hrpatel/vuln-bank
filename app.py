@@ -48,6 +48,14 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
+# T66: Prevent clickjacking — deny framing on all responses
+@app.after_request
+def set_anti_clickjacking_headers(response):
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Content-Security-Policy'] = "frame-ancestors 'none'"
+    response.headers['X-Permitted-Cross-Domain-Policies'] = 'none'
+    return response
+
 # T76: Use env for secret key; no hardcoded default in production
 app.secret_key = os.getenv('FLASK_SECRET_KEY') or os.getenv('SECRET_KEY') or 'secret123'
 
@@ -191,6 +199,7 @@ def generate_cvv():
     """Generate a 3-digit CVV (T151: use secrets)"""
     return ''.join(secrets.choice(string.digits) for _ in range(3))
 
+# T42: Template selection uses only literal names; no user input for page/view/template selection.
 @app.route('/')
 def index():
     return render_template('index.html')
