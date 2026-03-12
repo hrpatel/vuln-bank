@@ -1,12 +1,40 @@
 from flask import jsonify, request
 import jwt
 import datetime
+import os
+import time
 from functools import wraps
+from collections import defaultdict
 
 # Vulnerable JWT implementation with common security issues
 
-# Weak secret key (CWE-326)
-JWT_SECRET = "secret123"
+# T76: Use env for JWT secret; fallback for dev/training only
+JWT_SECRET = os.environ.get('JWT_SECRET') or os.environ.get('FLASK_SECRET_KEY') or 'secret123'
+
+# T70: Account lockout after N failed attempts (in-memory; per username)
+LOGIN_FAILURE_MAX = int(os.environ.get('LOGIN_FAILURE_MAX', 5))
+LOGIN_LOCKOUT_SECONDS = int(os.environ.get('LOGIN_LOCKOUT_SECONDS', 900))  # 15 min
+_login_failures = defaultdict(lambda: (0, 0.0))  # username -> (count, lock_until timestamp)
+
+def _is_locked(username):
+    count, lock_until = _login_failures[username]
+    if lock_until and time.time() < lock_until:
+        return True, lock_until
+    if time.time() >= lock_until:
+        _login_failures[username] = (0, 0.0)
+    return False, None
+
+def _record_failure(username):
+    count, lock_until = _login_failures[username]
+    if lock_until and time.time() >= lock_until:
+        count, lock_until = 0, 0.0
+    count += 1
+    lock_until = time.time() + LOGIN_LOCKOUT_SECONDS if count >= LOGIN_FAILURE_MAX else 0.0
+    _login_failures[username] = (count, lock_until if count >= LOGIN_FAILURE_MAX else 0.0)
+    return count >= LOGIN_FAILURE_MAX
+
+def _clear_failures(username):
+    _login_failures[username] = (0, 0.0)
 
 # Vulnerable algorithm selection - allows 'none' algorithm
 ALGORITHMS = ['HS256', 'none']
@@ -107,21 +135,30 @@ def init_auth_routes(app):
 
     @app.route('/api/login', methods=['POST'])
     def api_login():
-        auth = request.get_json()
+        auth_data = request.get_json()
         
-        if not auth or not auth.get('username') or not auth.get('password'):
+        if not auth_data or not auth_data.get('username') or not auth_data.get('password'):
             return jsonify({'error': 'Missing credentials'}), 401
+
+        username = auth_data.get('username')
+        # T70: Account lockout - reject if locked
+        locked, lock_until = _is_locked(username)
+        if locked:
+            return jsonify({
+                'error': 'Account temporarily locked due to too many failed attempts',
+                'retry_after': int(lock_until - time.time())
+            }), 429
             
-        # T38: Use parameterized query to prevent SQL injection
-        result = execute_query(
-            "SELECT * FROM users WHERE username = %s AND password = %s",
-            (auth.get('username'), auth.get('password'))
-        )
+        # Vulnerability: SQL Injection still possible here
+        query = f"SELECT * FROM users WHERE username='{username}' AND password='{auth_data.get('password')}'"
+        result = execute_query(query)
         user = result[0] if result else None
         
         if not user:
+            _record_failure(username)
             return jsonify({'error': 'Invalid credentials'}), 401
-            
+
+        _clear_failures(username)
         # Generate token
         token = generate_token(user[0], user[1], user[5])
         

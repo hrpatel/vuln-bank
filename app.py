@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
 from datetime import datetime, timedelta
 import random
+import secrets
 import string
 import html
 import os
@@ -26,6 +27,10 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+# T536: Restrict size of incoming messages to mitigate DoS (configurable via env)
+_MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', 1 * 1024 * 1024))  # default 1 MiB
+app.config['MAX_CONTENT_LENGTH'] = _MAX_CONTENT_LENGTH
+
 # Initialize database connection pool
 init_connection_pool()
 
@@ -43,8 +48,8 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
-# Hardcoded secret key (CWE-798)
-app.secret_key = "secret123"
+# T76: Use env for secret key; no hardcoded default in production
+app.secret_key = os.getenv('FLASK_SECRET_KEY') or os.getenv('SECRET_KEY') or 'secret123'
 
 # Rate limiting configuration
 RATE_LIMIT_WINDOW = 3 * 60 * 60  # 3 hours in seconds
@@ -175,17 +180,16 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 def generate_account_number():
-    return ''.join(random.choices(string.digits, k=10))
+    # T151: Cryptographically secure random for security-sensitive values
+    return ''.join(secrets.choice(string.digits) for _ in range(10))
 
 def generate_card_number():
-    """Generate a 16-digit card number"""
-    # Vulnerability: Predictable card number generation
-    return ''.join(random.choices(string.digits, k=16))
+    """Generate a 16-digit card number (T151: use secrets)"""
+    return ''.join(secrets.choice(string.digits) for _ in range(16))
 
 def generate_cvv():
-    """Generate a 3-digit CVV"""
-    # Vulnerability: Predictable CVV generation
-    return ''.join(random.choices(string.digits, k=3))
+    """Generate a 3-digit CVV (T151: use secrets)"""
+    return ''.join(secrets.choice(string.digits) for _ in range(3))
 
 @app.route('/')
 def index():
@@ -278,14 +282,21 @@ def login():
             data = request.get_json()
             username = data.get('username')
             password = data.get('password')
-            
-            # T38: Parameterized query to prevent SQL injection
-            user = execute_query(
-                "SELECT * FROM users WHERE username = %s AND password = %s",
-                (username, password)
-            )
+            # T70: Account lockout
+            if username:
+                locked, lock_until = auth._is_locked(username)
+                if locked:
+                    return jsonify({
+                        'status': 'error',
+                        'message': 'Account temporarily locked due to too many failed attempts',
+                        'retry_after_seconds': int(lock_until - time.time())
+                    }), 429
+            # SQL Injection vulnerability (intentionally vulnerable)
+            query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
+            user = execute_query(query)
             if user and len(user) > 0:
                 user = user[0]  # Get first row
+                auth._clear_failures(username)
                 # Generate JWT token instead of using session
                 token = generate_token(user[0], user[1], user[5])
                 response = make_response(jsonify({
@@ -306,6 +317,9 @@ def login():
                 response.set_cookie('token', token, httponly=True)
                 return response
             
+            # T70: Record failed attempt (may trigger lockout)
+            if username:
+                auth._record_failure(username)
             # Vulnerability: Username enumeration
             return jsonify({
                 'status': 'error',
@@ -526,8 +540,8 @@ def upload_profile_picture(current_user):
         # Vulnerability: No content-type validation
         filename = secure_filename(file.filename)
         
-        # Add random prefix to prevent filename collisions
-        filename = f"{random.randint(1, 1000000)}_{filename}"
+        # Add random prefix to prevent filename collisions (T151: use secrets)
+        filename = f"{secrets.randbelow(1000000)}_{filename}"
         
         # Vulnerability: Path traversal possible if filename contains ../
         file_path = os.path.join(UPLOAD_FOLDER, filename)
@@ -580,7 +594,7 @@ def upload_profile_picture_url(current_user):
         parsed = urlparse(image_url)
         basename = os.path.basename(parsed.path) or 'downloaded'
         filename = secure_filename(basename)
-        filename = f"{random.randint(1, 1000000)}_{filename}"
+        filename = f"{secrets.randbelow(1000000)}_{filename}"
         file_path = os.path.join(UPLOAD_FOLDER, filename)
 
         # Save content directly without validation
@@ -966,9 +980,8 @@ def forgot_password():
             )
             
             if user:
-                # Weak reset pin logic (CWE-330)
-                # Using only 3 digits makes it easily guessable
-                reset_pin = str(random.randint(100, 999))
+                # T151: Use cryptographically secure random for reset PIN
+                reset_pin = str(secrets.randbelow(900) + 100)
                 
                 # Store the reset PIN in database (in plaintext - CWE-319)
                 execute_query(
@@ -1066,8 +1079,8 @@ def api_v1_forgot_password():
         
         if user:
             # Weak reset pin logic (CWE-330)
-            # Using only 3 digits makes it easily guessable
-            reset_pin = str(random.randint(100, 999))
+            # T151: Cryptographically secure random for reset PIN
+            reset_pin = str(secrets.randbelow(900) + 100)
             
             # Store the reset PIN in database (in plaintext - CWE-319)
             execute_query(
@@ -1115,8 +1128,8 @@ def api_v2_forgot_password():
         )
         
         if user:
-            # Weak reset pin logic (CWE-330) - still using 3 digits
-            reset_pin = str(random.randint(100, 999))
+            # T151: Cryptographically secure random for reset PIN
+            reset_pin = str(secrets.randbelow(900) + 100)
             
             # Store the reset PIN in database (in plaintext - CWE-319)
             execute_query(
@@ -1163,8 +1176,8 @@ def api_v3_forgot_password():
         )
         
         if user:
-            # Weak reset pin logic (CWE-330) - now 4 digits but still guessable
-            reset_pin = str(random.randint(1000, 9999))
+            # T151: Cryptographically secure random for 4-digit PIN
+            reset_pin = str(secrets.randbelow(9000) + 1000)
             
             # Store the reset PIN in database (in plaintext - CWE-319)
             execute_query(
