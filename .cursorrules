@@ -25,7 +25,6 @@ All shared rules live in .workflow/ — that is the single source of truth:
 - How We Work.md — roles, coordination protocol, review process
 - github-issues-coordination.md — Issues coordination guide, API reference, and hard-problem solutions
 - Tips & Lessons.md — practical knowledge from AI-assisted development
-- task-template.md — standard format for archival task snapshots
 
 ## Project Context
 

@@ -8,4 +8,4 @@ Items here were part of the workflow setup and review cycle and are **no longer 
 | **workflow-suggestions-cursor.md** | Cursor's workflow review (March 2026). Review complete; findings addressed via GitHub Issues migration. |
 | **REVIEW-REQUEST.md** | Request for Cursor to review the workflow. Review completed; feedback applied. |
 
-Current coordination: **GitHub Issues** (see `.workflow/github-issues-coordination.md`). Optional completion snapshots can be saved under `.archive/tasks/done/` for offline/portfolio use.
+Current coordination: **GitHub Issues** (see `.workflow/github-issues-coordination.md`).
