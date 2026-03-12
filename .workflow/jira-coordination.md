@@ -4,6 +4,8 @@
 
 > **When to use Jira here:** Requirements and work items that are created in Jira (epics, stories, bugs), or that need to stay in sync with a team board. Use `acli` for search, view, create, transition, and link.
 
+When **multiple AI agents** (e.g. Claude Code and Cursor) work from the same Jira project, use assignee, status, and comments to claim explicitly, signal who is working, and leave completion/handoff comments so the other model and operators can see what’s going on.
+
 ---
 
 ## How It Works
@@ -101,10 +103,75 @@ Run `acli jira workitem <subcommand> --help` for each for exact usage.
 | Transition | `acli jira workitem transition` (see --help) |
 | Assign | `acli jira workitem assign` |
 | Edit | `acli jira workitem edit` |
-| Comment | `acli jira workitem comment` |
+| Comment | `acli jira workitem comment create --key KEY-123 --body "..."` |
 | Auth | `acli auth` |
 
 Replace `PROJ` and `KEY-123` with your project key and issue key.
+
+---
+
+## Multi-Model Coordination
+
+When Claude Code and Cursor (or other agents) both use the same Jira project, follow the same claiming and signaling discipline so everyone can see who claimed what and when work is done.
+
+### Conventions
+
+| Concept | How to represent it in Jira |
+|--------|-----------------------------|
+| **Who is working** | **Assignee** — set to the operator or a stable “agent” user when an agent claims the task. |
+| **Claimed / in progress** | **Status** — transition to “In Progress” (or your project’s equivalent) when claiming. |
+| **Ready to pick up** | Unassigned (or assignee cleared) and status “To Do” / “Open”. |
+| **Who claimed (agent identity)** | **Comment** — e.g. “**[Claude Code]** Claiming this task.” so the other model and operators can see who is working. |
+| **Done / handoff** | **Comment** when work is ready for review or merged, e.g. “**[Claude Code]** PR #N merged. Ready for QA.” |
+
+If your Jira project uses **labels** (e.g. `claude-code`, `cursor`), add the appropriate label when claiming so you can filter with JQL (`labels = claude-code`).
+
+### Claiming a Task
+
+1. **Find work** — Search for unassigned items or items in “To Do” (e.g. `assignee is empty AND status = "To Do"`).
+2. **Assign and transition** — Assign to the right user and transition to “In Progress”.
+3. **Leave a claiming comment** — So the other model and operators see who claimed it.
+
+```bash
+# Assign (see acli jira workitem assign --help for exact syntax)
+acli jira workitem assign KEY-123 <assignee>
+
+# Transition to In Progress (see acli jira workitem transition --help)
+acli jira workitem transition KEY-123 "In Progress"
+
+# Comment: who claimed
+acli jira workitem comment create --key KEY-123 --body "**[Claude Code]** Claiming this task. Starting work now."
+```
+
+For Cursor, use `[Cursor]` in the comment. Adjust assignee to match your setup (e.g. operator’s Jira user or a shared “AI agent” user).
+
+### Completing a Task
+
+When the work is done (e.g. PR merged):
+
+1. **Transition** the issue to Done / Closed as appropriate.
+2. **Leave a completion comment** so downstream work and the other model are aware.
+
+```bash
+acli jira workitem transition KEY-123 "Done"
+acli jira workitem comment create --key KEY-123 --body "**[Claude Code]** PR #N merged. Issue complete."
+```
+
+### Cross-Model Signaling
+
+Use **comments** for anything the other model or operators need to see:
+
+- **Scope changes:** “This is bigger than expected — splitting into PROJ-124 and PROJ-125.”
+- **Blockers:** “Blocked on operator decision for X.”
+- **Handoffs:** “Backend done; frontend ticket PROJ-126 is unblocked.”
+
+Comments are visible to everyone and avoid branch-local visibility gaps.
+
+### Avoiding Conflicts
+
+- Before claiming, re-check that the issue is still unassigned (or that you’re intentionally reassigning).
+- If your project has a “Files to edit” or similar field, check that your planned work doesn’t overlap with another in-progress issue’s files.
+- If two agents claim the same issue, the second should back off and pick something else (or operators resolve verbally).
 
 ---
 
