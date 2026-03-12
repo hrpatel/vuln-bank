@@ -19,34 +19,23 @@ Both operators:
 Both models:
 - Read the workflow docs at session start
 - Check for conflicts before starting work
-- Claim tasks via GitHub Issues before working on them
+- Claim tasks via the issue tracker set in `.workflow/issue-tracker.md` before working on them
 - Create PRs for all code changes
 - Never merge, never push directly to main
 
 ## Coordination Protocol
 
-### GitHub Issues Are the Source of Truth
+### Issue Tracker Is Set Once per Project
 
-**GitHub Issues** are the real-time coordination layer. Labels, assignments, and comments are visible to both models from any branch — no merge required. See `.workflow/github-issues-coordination.md` for the full API reference and workflow details.
+The project’s issue tracker is chosen at setup and recorded in **`.workflow/issue-tracker.md`**. All agents and operators use that same tracker so coordination is consistent. Read that file, then follow the **coordination guide** it links to (GitHub, Jira, or Beads) for how to find work, claim tasks, and avoid conflicts.
 
-| Label | Meaning |
-|-------|---------|
-| `available` | Ready for either model to pick up |
-| `in-progress` | Claimed and being worked on |
-| `blocked` | Has unresolved dependencies |
-| `claude-code` | Owned by Claude Code |
-| `cursor` | Owned by Cursor |
-| `completed` | Work finished and merged |
-
-> **Historical note:** `tasks/index.md` was the original coordination mechanism but had a visibility gap — both models edited it on branches, so neither could see the other's claims. Issues solve this by being branch-independent.
+One-time setup (e.g. when creating or changing the choice) is in `.workflow/bootstrap.md`.
 
 ### Before Starting a Task
 
-1. Check GitHub Issues: `gh issue list --repo hrpatel/vuln-bank`
-2. Find an issue labeled `available` (or create one if your operator gives you new work)
-3. Check its "Files to edit" against all `in-progress` issues from the other model
-4. If there's a file overlap → pick a different issue or wait
-5. If no overlap → claim the issue (assign + relabel in one PATCH call), then start working
+1. Read `.workflow/issue-tracker.md` to see which tracker this project uses.
+2. Open the coordination guide linked there.
+3. Use that guide to find available work, check for in-progress work from the other model (and its "Files to edit"), and claim a task without file overlap.
 
 ### Branch Naming
 
