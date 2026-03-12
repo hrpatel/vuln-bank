@@ -11,6 +11,7 @@
 |---------|------|--------------------|-----|-----------|------------|-------|--------|----------|---------------|------|------------|
 | 8 | Mar 10 | -- | 0 | 0 | SDElements: vuln-bank project, Django profile (P5), survey bias (auth/encryption/compliance), profile doc; branch cursor/50 | Spec | ai | coworker | Planning | Cursor | 0 |
 | 9 | Mar 10 | -- | 1 | 0 | SDE countermeasures: claimed GH #100 #80 #97 #99 #83 (T38 T36 T338 T2139 T1144); implemented T38 parameterized SQL; verified T36/T338/T1144; T2139 Incomplete by design + SDE note; PR #103 | Build | ai | coworker | Feature | Cursor | 0 |
+| 10 | Mar 12 | -- | 1 | 0 | SDE T66 + T42: claimed #82 #96; implemented clickjacking headers (X-Frame-Options, CSP frame-ancestors); verified T42 (no untrusted template selection); SDE status + notes; PR #108 merged | Build | ai | coworker | Feature | Cursor | 0 |
 
 ## Code Volume
 
@@ -18,6 +19,7 @@
 |---------|------|-------------|---------------|------------|-------------------|
 | 8 | Mar 10 | ~46 | 0 | +46 | STATUS.md, docs/sdelements-profile-and-assumptions.md (new) |
 | 9 | Mar 10 | ~95 | ~109 | -14 | auth.py, app.py (T38 SQL binding); STATUS.md |
+| 10 | Mar 12 | ~9 | 0 | +9 | app.py (T66 headers, T42 comment); STATUS.md |
 
 ## PR Activity
 
@@ -25,6 +27,7 @@
 |---------|------|-------------|------------|---------|-------|
 | 8 | Mar 10 | 0 | 0 | 1 | cursor/50-sdelements-profile-assumptions: SDE profile + doc; metrics this commit |
 | 9 | Mar 10 | 1 | 0 | 2 | PR #103 cursor/05-sde-countermeasures: SDE countermeasures + STATUS |
+| 10 | Mar 12 | 1 | 1 | 2 | PR #108 cursor/07-sde-t66-t42: T66 T42; merged |
 
 ## Bugs Found/Fixed
 

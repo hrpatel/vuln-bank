@@ -25,7 +25,7 @@ A deliberately vulnerable banking application designed for practicing security t
 
 ## Recent Work
 
-- **Cursor session (Mar 12):** SDE T66 + T42: claimed #82 #96. Implemented T66 (X-Frame-Options DENY, CSP frame-ancestors, X-Permitted-Cross-Domain-Policies); verified T42 (no untrusted template selection). SDE status + rationale notes applied. PR #108.
+- **Cursor session (Mar 12):** SDE T66 + T42: claimed #82 #96. Implemented T66 (X-Frame-Options DENY, CSP frame-ancestors, X-Permitted-Cross-Domain-Policies); verified T42 (no untrusted template selection). SDE status + rationale notes applied. PR #108 merged; #82, #96 closed.
 - **Cursor session (Mar 12):** SDE batch 2: claimed #101 #98 #95 #74 #86 (T536 T1362 T151 T76 T70). Implemented: MAX_CONTENT_LENGTH (T536), secrets for randoms (T151), env for Flask/JWT secrets (T76), account lockout (T70); T1362 verified (AI + auth throttling). Rationale notes in `docs/sde-batch2-rationale.md`. PR #107.
 - **Cursor session (Mar 10):** Security champion: created SDElements project **vuln-bank** via sde-mcp-demo; modeled project with survey answers (Web application, Web service, Uses passwords); created GitHub issue #54 from SDE task CT1 with labels `security`, `phase:requirements`, `available`, `created-by:cursor`.
 - **Cursor session (Mar 10):** Created `.archive/` and moved obsolete workflow artifacts — `tasks/`, `workflow-suggestions-cursor.md`, `REVIEW-REQUEST.md`. Added `.archive/README.md` and `.archive/tasks/done/`. Updated `.workflow/` docs and `STATUS.md` to use `.archive` paths and GitHub Issues as coordination layer.
