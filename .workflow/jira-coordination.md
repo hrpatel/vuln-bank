@@ -4,7 +4,7 @@
 
 > **When to use Jira here:** Requirements and work items that are created in Jira (epics, stories, bugs), or that need to stay in sync with a team board. Use `acli` for search, view, create, transition, and link.
 
-When **multiple AI agents** (e.g. Claude Code and Cursor) work from the same Jira project, use assignee, status, and comments the same way as in the GitHub Issues workflow: claim explicitly, signal who is working, and leave completion/handoff comments so the other model and operators can see what’s going on.
+When **multiple AI agents** (e.g. Claude Code and Cursor) work from the same Jira project, use assignee, status, and comments to claim explicitly, signal who is working, and leave completion/handoff comments so the other model and operators can see what’s going on.
 
 ---
 
@@ -112,7 +112,7 @@ Replace `PROJ` and `KEY-123` with your project key and issue key.
 
 ## Multi-Model Coordination
 
-When Claude Code and Cursor (or other agents) both use the same Jira project, mirror the GitHub Issues discipline so everyone can see who claimed what and when work is done.
+When Claude Code and Cursor (or other agents) both use the same Jira project, follow the same claiming and signaling discipline so everyone can see who claimed what and when work is done.
 
 ### Conventions
 
