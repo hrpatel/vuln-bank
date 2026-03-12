@@ -149,8 +149,8 @@ def ai_rate_limit(f):
                     
                     # Both checks passed, proceed with authenticated function
                     return f(*args, **kwargs)
-            except:
-                pass  # Fall through to unauthenticated handling
+            except Exception:
+                pass  # Token verification failed — fall through to unauthenticated handling
         
         # Unauthenticated mode: rate limit by IP only
         ip_key = f"ai_unauth_ip_{client_ip}"
@@ -485,23 +485,15 @@ def transfer(current_user):
 @app.route('/transactions/<account_number>')
 def get_transaction_history(account_number):
     # Vulnerability: No authentication required (BOLA)
-    # Vulnerability: SQL Injection possible
+    # T38: Parameterized query
     try:
-        query = f"""
-            SELECT 
-                id,
-                from_account,
-                to_account,
-                amount,
-                timestamp,
-                transaction_type,
-                description
-            FROM transactions 
-            WHERE from_account='{account_number}' OR to_account='{account_number}'
-            ORDER BY timestamp DESC
-        """
-        
-        transactions = execute_query(query)
+        transactions = execute_query(
+            """SELECT id, from_account, to_account, amount, timestamp, transaction_type, description
+               FROM transactions
+               WHERE from_account = %s OR to_account = %s
+               ORDER BY timestamp DESC""",
+            (account_number, account_number)
+        )
         
         # Vulnerability: Information disclosure
         transaction_list = [{
@@ -1372,15 +1364,14 @@ def api_transactions(current_user):
     if not account_number:
         return jsonify({'error': 'Account number required'}), 400
         
-    # Vulnerability: SQL Injection
-    query = f"""
-        SELECT * FROM transactions 
-        WHERE from_account='{account_number}' OR to_account='{account_number}'
-        ORDER BY timestamp DESC
-    """
-    
+    # T38: Parameterized query to prevent SQL injection
     try:
-        transactions = execute_query(query)
+        transactions = execute_query(
+            """SELECT * FROM transactions
+               WHERE from_account = %s OR to_account = %s
+               ORDER BY timestamp DESC""",
+            (account_number, account_number)
+        )
         
         # Convert Decimal objects to float for JSON serialization
         transaction_list = []
@@ -1418,19 +1409,17 @@ def create_virtual_card(current_user):
         # Vulnerability: Fixed expiry date calculation
         expiry_date = (datetime.now() + timedelta(days=365)).strftime('%m/%y')
         
-        # Vulnerability: SQL injection possible in card_type
         card_type = data.get('card_type', 'standard')
         
-        # Create virtual card
-        query = f"""
-            INSERT INTO virtual_cards 
-            (user_id, card_number, cvv, expiry_date, card_limit, card_type)
-            VALUES 
-            ({current_user['user_id']}, '{card_number}', '{cvv}', '{expiry_date}', {card_limit}, '{card_type}')
-            RETURNING id
-        """
-        
-        result = execute_query(query)
+        # T38: Parameterized query to prevent SQL injection
+        result = execute_query(
+            """INSERT INTO virtual_cards
+               (user_id, card_number, cvv, expiry_date, card_limit, card_type)
+               VALUES (%s, %s, %s, %s, %s, %s)
+               RETURNING id""",
+            (current_user['user_id'], card_number, cvv, expiry_date, card_limit, card_type),
+            fetch=True
+        )
         
         if result:
             # Vulnerability: Sensitive data exposure
@@ -1463,12 +1452,10 @@ def create_virtual_card(current_user):
 def get_virtual_cards(current_user):
     try:
         # Vulnerability: No pagination
-        query = f"""
-            SELECT * FROM virtual_cards 
-            WHERE user_id = {current_user['user_id']}
-        """
-        
-        cards = execute_query(query)
+        cards = execute_query(
+            "SELECT * FROM virtual_cards WHERE user_id = %s",
+            (current_user['user_id'],)
+        )
         
         # Vulnerability: Sensitive data exposure
         return jsonify({
@@ -1500,14 +1487,10 @@ def toggle_card_freeze(current_user, card_id):
     try:
         # Vulnerability: No CSRF protection
         # Vulnerability: BOLA - no verification if card belongs to user
-        query = f"""
-            UPDATE virtual_cards 
-            SET is_frozen = NOT is_frozen 
-            WHERE id = {card_id}
-            RETURNING is_frozen
-        """
-        
-        result = execute_query(query)
+        result = execute_query(
+            "UPDATE virtual_cards SET is_frozen = NOT is_frozen WHERE id = %s RETURNING is_frozen",
+            (card_id,)
+        )
         
         if result:
             return jsonify({
@@ -1531,16 +1514,14 @@ def toggle_card_freeze(current_user, card_id):
 def get_card_transactions(current_user, card_id):
     try:
         # Vulnerability: BOLA - no verification if card belongs to user
-        # Vulnerability: SQL Injection possible
-        query = f"""
-            SELECT ct.*, vc.card_number 
-            FROM card_transactions ct
-            JOIN virtual_cards vc ON ct.card_id = vc.id
-            WHERE ct.card_id = {card_id}
-            ORDER BY ct.timestamp DESC
-        """
-        
-        transactions = execute_query(query)
+        transactions = execute_query(
+            """SELECT ct.*, vc.card_number
+               FROM card_transactions ct
+               JOIN virtual_cards vc ON ct.card_id = vc.id
+               WHERE ct.card_id = %s
+               ORDER BY ct.timestamp DESC""",
+            (card_id,)
+        )
         
         # Vulnerability: Information disclosure
         return jsonify({
@@ -1653,13 +1634,10 @@ def get_bill_categories():
 @app.route('/api/billers/by-category/<int:category_id>', methods=['GET'])
 def get_billers_by_category(category_id):
     try:
-        # Vulnerability: SQL injection possible
-        query = f"""
-            SELECT * FROM billers 
-            WHERE category_id = {category_id} 
-            AND is_active = TRUE
-        """
-        billers = execute_query(query)
+        billers = execute_query(
+            "SELECT * FROM billers WHERE category_id = %s AND is_active = TRUE",
+            (category_id,)
+        )
         
         # Vulnerability: Information disclosure
         return jsonify({
@@ -1697,13 +1675,10 @@ def create_bill_payment(current_user):
         
         if payment_method == 'virtual_card' and card_id:
             # Vulnerability: BOLA - no verification if card belongs to user
-            # Vulnerability: SQL injection possible
-            card_query = f"""
-                SELECT current_balance, card_limit, is_frozen 
-                FROM virtual_cards 
-                WHERE id = {card_id}
-            """
-            card = execute_query(card_query)[0]
+            card = execute_query(
+                "SELECT current_balance, card_limit, is_frozen FROM virtual_cards WHERE id = %s",
+                (card_id,)
+            )[0]
             
             if card[2]:  # is_frozen
                 return jsonify({
@@ -1720,11 +1695,10 @@ def create_bill_payment(current_user):
         elif payment_method == 'balance':
             # Check user balance
             # Vulnerability: Race condition possible
-            user_query = f"""
-                SELECT balance FROM users
-                WHERE id = {current_user['user_id']}
-            """
-            user_balance = float(execute_query(user_query)[0][0])
+            user_balance = float(execute_query(
+                "SELECT balance FROM users WHERE id = %s",
+                (current_user['user_id'],)
+            )[0][0])
             
             if amount > user_balance:
                 return jsonify({
@@ -1800,22 +1774,16 @@ def create_bill_payment(current_user):
 def get_payment_history(current_user):
     try:
         # Vulnerability: No pagination
-        # Vulnerability: SQL injection possible
-        query = f"""
-            SELECT 
-                bp.*,
-                b.name as biller_name,
-                bc.name as category_name,
-                vc.card_number
-            FROM bill_payments bp
-            JOIN billers b ON bp.biller_id = b.id
-            JOIN bill_categories bc ON b.category_id = bc.id
-            LEFT JOIN virtual_cards vc ON bp.card_id = vc.id
-            WHERE bp.user_id = {current_user['user_id']}
-            ORDER BY bp.created_at DESC
-        """
-        
-        payments = execute_query(query)
+        payments = execute_query(
+            """SELECT bp.*, b.name as biller_name, bc.name as category_name, vc.card_number
+               FROM bill_payments bp
+               JOIN billers b ON bp.biller_id = b.id
+               JOIN bill_categories bc ON b.category_id = bc.id
+               LEFT JOIN virtual_cards vc ON bp.card_id = vc.id
+               WHERE bp.user_id = %s
+               ORDER BY bp.created_at DESC""",
+            (current_user['user_id'],)
+        )
         
         # Vulnerability: Excessive data exposure
         return jsonify({
@@ -2052,8 +2020,8 @@ def ai_rate_limit_status():
                         'user_id': user_data['user_id'],
                         'username': user_data['username']
                     }
-            except:
-                pass  # Token invalid, stay with unauthenticated status
+            except Exception:
+                pass  # Token invalid — stay with unauthenticated status
         
         return jsonify(status)
         
