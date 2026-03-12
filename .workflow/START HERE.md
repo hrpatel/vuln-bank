@@ -111,7 +111,10 @@ This can happen at any natural breakpoint — no need to wait for the other mode
 | **decisions.md** | Repo root | When you need project history; log decisions using the structured format |
 | **metrics.md** | Repo root | When updating tracking data; log sessions using the field definitions |
 | **GitHub Issues** | `gh issue list --repo hrpatel/vuln-bank` | Before starting any work |
-| **Coordination Guide** | `.workflow/github-issues-coordination.md` | API reference for Issues workflow |
+| **GitHub Coordination** | `.workflow/github-issues-coordination.md` | API reference for Issues workflow |
+| **Beads Coordination** | `.workflow/beads-coordination.md` | Local task tracking with `bd` |
+| **Jira Coordination** | `.workflow/jira-coordination.md` | Jira workflow with `acli` |
+| **Gherkin Requirements** | `.workflow/gherkin-requirements.md` | Writing requirements as Gherkin feature files |
 
 ---
 

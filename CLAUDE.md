@@ -27,7 +27,10 @@ Set these for your agent (example values shown for Claude Code):
 All shared rules live in `.workflow/` — that is the single source of truth:
 - `START HERE.md` — session rules and task workflow
 - `How We Work.md` — roles, coordination protocol, review process
-- `github-issues-coordination.md` — Issues coordination guide, API reference, and hard-problem solutions
+- `github-issues-coordination.md` — Issues coordination guide, API reference
+- `beads-coordination.md` — local task tracking with Beads (`bd`)
+- `jira-coordination.md` — Jira workflow with Atlassian CLI (`acli`)
+- `gherkin-requirements.md` — writing requirements as Gherkin feature files
 - `Tips & Lessons.md` — practical knowledge from AI-assisted development
 
 ## Project Context
