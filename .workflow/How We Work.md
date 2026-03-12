@@ -59,12 +59,12 @@ If a merge conflict arises in a PR, the model that created the PR resolves it.
 
 1. Operator describes what they want
 2. AI model asks clarifying questions if needed
-3. AI model checks GitHub Issues for conflicts
-4. AI model creates an issue (if one doesn't exist) and claims it (assign + label)
+3. AI model checks the issue tracker (see `.workflow/issue-tracker.md`) for conflicts
+4. AI model creates a task (if one doesn't exist) and claims it per the coordination guide
 5. AI model works on a feature branch
 6. AI model creates a PR
 7. **Human merges** the PR
-8. When the PR is merged, the issue is closed (by automation if the PR body has "Fixes #N", or manually). The person who merges unblocks downstream issues and updates STATUS.md / tracking docs as needed.
+8. When the PR is merged, the tracker issue is closed or completed per the coordination guide. The person who merges unblocks downstream work and updates STATUS.md / tracking docs as needed.
 
 ## Communication Style
 
@@ -126,7 +126,7 @@ If your task needs to update workflow docs and another model has an `in-progress
 
 1. **Small, targeted PRs** — one concern per PR
 2. **Branch isolation** — each model on its own branch
-3. **Task ownership** — claimed via GitHub Issue assignment, no ambiguity
+3. **Task ownership** — claimed via the issue tracker (per the coordination guide), no ambiguity
 4. **File-level conflict detection** — "Files to edit" in issue bodies is the mechanism
 5. **Sequential within chains, parallel across chains** — dependency chains are respected; independent tasks run simultaneously
 6. **Research before building** — don't default to the first approach; find the best one
