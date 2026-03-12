@@ -10,8 +10,8 @@
 2. **Humans merge.** AI models never merge PRs. They create them, review them, flag them as ready.
 3. **Tasks are sequential unless marked parallel-safe.** Parallel tasks touching the same files can revert each other.
 4. **Ask before acting on anything destructive or ambiguous.** When in doubt, ask.
-5. **Check for conflicts before starting.** Check GitHub Issues labeled `in-progress` and verify no task from the other model touches your files.
-6. **Claim your work.** Assign yourself and label the issue when you start. Create a PR when you finish; the issue stays open until the PR is merged (human or automation closes it then).
+5. **Check for conflicts before starting.** Use the coordination guide (see `.workflow/issue-tracker.md`) to see in-progress work and verify no task from the other model touches your files.
+6. **Claim your work.** Claim a task in the project’s issue tracker when you start (via the coordination guide). Create a PR when you finish; the tracker issue is closed or completed per the guide (e.g. when the PR is merged).
 
 ## Before You Build
 
@@ -28,39 +28,33 @@ A few minutes of research before implementing saves multiple iteration cycles af
 
 1. Read your entry point — `CLAUDE.md` for CLI agents (e.g. Claude Code), `.cursorrules` for Cursor — it brought you here.
 2. Check `STATUS.md` for current project state.
-3. **Check GitHub Issues** for available work: `gh issue list --repo hrpatel/vuln-bank --label available`. If there are available issues, pick one that doesn't conflict with any `in-progress` work.
-4. If no issues are available, ask your operator what to work on.
-5. For the full coordination guide, see `.workflow/github-issues-coordination.md`.
+3. **Read `.workflow/issue-tracker.md`** to see which issue tracker this project uses. Follow the **coordination guide linked there** to find available work and claim a task (and to check for in-progress work from the other model).
+4. If no work is available, ask your operator what to do next.
 
 ## Task Workflow
 
-- **Tasks are GitHub Issues.** The issue body contains the spec, files to edit, and acceptance criteria.
-- Labels and assignments provide real-time status visible from any branch.
-- When you finish a task, create or update the PR and leave a completion comment; do not close the issue. The issue is closed when the PR is merged (by human or automation); downstream issues are unblocked at that time.
+- **Tasks are tracked in the system set in `.workflow/issue-tracker.md`.** The coordination guide for that tracker describes the spec format, files to edit, and acceptance criteria.
+- When you finish a task, follow the coordination guide (e.g. PR, completion comment, status update). Do not close or complete the issue in the tracker until the guide says so (e.g. after PR merge).
 - Update `STATUS.md`, `decisions.md`, and `metrics.md` as part of completing any task that warrants it.
 
 ## Task Dependencies & Parallel Work
 
-GitHub Issues support native dependency tracking:
-- **Sub-issues:** Group related tasks under a parent issue. The parent shows automatic progress roll-up.
-- **Dependencies:** Link issues with "blocked by" relationships. Check `.workflow/github-issues-coordination.md` for the API commands.
-- **Files to edit:** Always list files in the issue body — this enables conflict detection between models.
+Your coordination guide (see `.workflow/issue-tracker.md`) describes how dependencies and sub-tasks work. In all cases:
 
-**How to assess parallel safety:** Two tasks conflict if they modify the same file. Check the "Files to edit" section of all `in-progress` issues before starting yours.
+- **Files to edit:** Always list files that the task will modify — this enables conflict detection between models.
+
+**How to assess parallel safety:** Two tasks conflict if they modify the same file. Check in-progress work (via the coordination guide) before starting yours.
 
 ## Creating New Tasks
 
-1. **Create a GitHub Issue.** Include a clear title, spec, acceptance criteria, and "Files to edit" section in the body.
-2. **Label it.** Use `available` if it's ready to start, or `blocked` if it has unresolved dependencies.
-3. **Link dependencies.** If the task depends on another issue, add a "blocked by" link via the API.
-4. **Link to parent.** If it's part of a chain, add it as a sub-issue of the parent.
+Follow the coordination guide linked in `.workflow/issue-tracker.md` to create tasks. In general: include a clear title, spec, acceptance criteria, and "Files to edit"; set status/labels so others can see it's available or blocked; link dependencies if the tracker supports it.
 
 ## Task Completion Checklist
 
 1. **Rebase on main before closing** — when closing a session: fetch and rebase (`git fetch origin main && git rebase origin/main`), resolve any conflicts, then commit and push; use `git push --force-with-lease origin <branch>` if the branch was already pushed. Verify the PR shows no conflicts.
-2. **PR created or updated** — open or update the PR; do **not** close the GitHub Issue. The issue is closed when the PR is merged (by human or automation).
-3. **Downstream unblocked** — when the PR is merged and the issue is closed, whoever merges flips any newly-unblocked issues from `blocked` to `available` (or document in the PR comment which issues to unblock).
-4. **Completion comment** — leave a comment on the issue noting the PR number and that it is ready for review/merge.
+2. **PR created or updated** — open or update the PR. Follow the coordination guide (`.workflow/issue-tracker.md`) for when to close or complete the tracker issue (e.g. when the PR is merged).
+3. **Downstream unblocked** — when the PR is merged, follow the coordination guide to flip any newly-unblocked work to available (or document in the PR comment).
+4. **Completion comment** — per the coordination guide, leave a comment or update in the tracker noting the PR and that it’s ready for review/merge.
 5. **Metrics updated** — on session close, update `metrics.md` (session row, PR/commits, and code volume if applicable).
 6. **Decisions updated** — if a significant decision was made, update `decisions.md`.
 7. **STATUS.md updated** — reflect the current project state.
@@ -77,7 +71,7 @@ When your operator says "close this session" (or equivalent), follow these steps
    - Add code volume and PR activity rows as applicable.
 3. **Update `decisions.md`** — if any significant decisions were made this session.
 4. **Update `STATUS.md`** — reflect the current project state.
-5. **Release claimed issues** — any `in-progress` issues you didn't finish should be relabeled `available` so the other model can pick them up.
+5. **Release claimed issues** — any tasks you claimed but didn’t finish should be released back to available (per the coordination guide) so the other model can pick them up.
 6. **Commit and PR** — push your metrics/docs update as part of your final PR, or as a separate close-out PR.
 
 > **Do not edit `metrics.md` directly.** Each model writes to its own file. Claude Code is the merger — it combines both files into `metrics.md` (master) and syncs to Meta Tracker.
@@ -110,10 +104,11 @@ This can happen at any natural breakpoint — no need to wait for the other mode
 | **Tips & Lessons** | `.workflow/` | When you hit a technical snag |
 | **decisions.md** | Repo root | When you need project history; log decisions using the structured format |
 | **metrics.md** | Repo root | When updating tracking data; log sessions using the field definitions |
-| **GitHub Issues** | `gh issue list --repo hrpatel/vuln-bank` | Before starting any work |
-| **GitHub Coordination** | `.workflow/github-issues-coordination.md` | API reference for Issues workflow |
-| **Beads Coordination** | `.workflow/beads-coordination.md` | Local task tracking with `bd` |
-| **Jira Coordination** | `.workflow/jira-coordination.md` | Jira workflow with `acli` |
+| **Issue tracker** | `.workflow/issue-tracker.md` | Which tracker this project uses; read first, then follow its coordination guide |
+| **Bootstrap** | `.workflow/bootstrap.md` | One-time setup when choosing or changing the issue tracker |
+| **GitHub Coordination** | `.workflow/github-issues-coordination.md` | If tracker is GitHub Issues |
+| **Beads Coordination** | `.workflow/beads-coordination.md` | If tracker is Beads |
+| **Jira Coordination** | `.workflow/jira-coordination.md` | If tracker is Jira |
 | **Gherkin Requirements** | `.workflow/gherkin-requirements.md` | Writing requirements as Gherkin feature files |
 
 ---
