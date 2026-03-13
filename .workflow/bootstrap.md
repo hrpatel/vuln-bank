@@ -2,6 +2,8 @@
 
 Use this checklist **once** when setting up multi-model AI collaboration on a new repo (or when changing how the project tracks work). After this, agents and operators follow the workflow in START HERE and the coordination guide chosen below.
 
+**New to this repo?** Complete [onboarding.md](onboarding.md) first (git, GitHub CLI, and any tracker-specific tools for macOS or WSL). Then return here for project-level setup.
+
 ---
 
 ## 1. Choose the issue tracker

@@ -104,6 +104,7 @@ This can happen at any natural breakpoint — no need to wait for the other mode
 | **Tips & Lessons** | `.workflow/` | When you hit a technical snag |
 | **decisions.md** | Repo root | When you need project history; log decisions using the structured format |
 | **metrics.md** | Repo root | When updating tracking data; log sessions using the field definitions |
+| **Onboarding** | `.workflow/onboarding.md` | First-time local setup (git, gh, optional bd/acli) — macOS & WSL |
 | **Issue tracker** | `.workflow/issue-tracker.md` | Which tracker this project uses; read first, then follow its coordination guide |
 | **Bootstrap** | `.workflow/bootstrap.md` | One-time setup when choosing or changing the issue tracker |
 | **GitHub Coordination** | `.workflow/github-issues-coordination.md` | If tracker is GitHub Issues |
