@@ -47,7 +47,7 @@ A deliberately vulnerable banking application designed for practicing security t
   - Claude Code (CLI) — operated by Michael
   - Cursor — operated by coworker
 - Coordination via GitHub Issues (see `.workflow/github-issues-coordination.md`)
-- Metrics: split files per model (`metrics-claude.md`, `metrics-cursor.md`), Claude Code merges into `metrics.md`
+- Metrics: `.metrics/` — split files per model (`metrics-claude.md`, `metrics-cursor.md`), Claude Code merges into `metrics.md`; update before every push
 
 ---
 

@@ -30,7 +30,7 @@ A living document capturing what we've learned — from both AI models and both 
 
 - `[Claude Code]` **This is a deliberately vulnerable app.** Vulnerabilities are features, not bugs. Don't "fix" intentional vulnerabilities unless explicitly asked to.
 - `[Claude Code]` **Document each vulnerability clearly.** Include: what the vulnerability is, where it lives, how to exploit it, and how a real app would fix it.
-- `[Claude Code]` **Separate intentional vulns from real bugs.** If you find an actual bug (not an intentional vulnerability), log it in `metrics.md`.
+- `[Claude Code]` **Separate intentional vulns from real bugs.** If you find an actual bug (not an intentional vulnerability), log it in `.metrics/metrics.md` (via your model's file and merge).
 - `[Claude Code]` **Mark intentional vulns in code.** Use a consistent comment pattern (e.g. `# VULN: <description>`) so models and contributors can tell what's intentional.
 
 ## Workflow & Process

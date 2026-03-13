@@ -1,7 +1,7 @@
 # Vuln Bank — Claude Code Session Metrics
 
 **Owner:** Claude Code
-**Purpose:** Per-session metrics log. Claude Code updates this file at session close-out. Claude Code merges this + `metrics-cursor.md` into `metrics.md` (master) and syncs to Meta Tracker.
+**Purpose:** Per-session metrics log. Claude Code updates this file at session close-out. Claude Code merges this + `metrics-cursor.md` into `metrics.md` (master, in this directory) and syncs to Meta Tracker.
 
 ---
 
@@ -53,4 +53,4 @@ These fields must match the Meta Tracker data model for reliable sync.
 
 ---
 
-*Updated at each session close-out. Do not edit `metrics.md` directly — Claude Code merges both model files into the master.*
+*Updated at each session close-out. Do not edit the master file in this directory (`metrics.md`) — Claude Code merges both model files into it.*
