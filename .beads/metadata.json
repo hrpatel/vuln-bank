@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "vuln_bank",
+  "project_id": "0fe5f9a6-1106-4f9a-8c2e-975c8b86fc42"
+}
