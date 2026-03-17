@@ -27,9 +27,10 @@ A few minutes of research before implementing saves multiple iteration cycles af
 ## How to Start a Session
 
 1. Read your entry point — `CLAUDE.md` for CLI agents (e.g. Claude Code), `.cursorrules` for Cursor — it brought you here.
-2. Check `STATUS.md` for current project state.
-3. **Read `.workflow/issue-tracker.md`** to see which issue tracker this project uses. Follow the **coordination guide linked there** to find available work and claim a task (and to check for in-progress work from the other model).
-4. If no work is available, ask your operator what to do next.
+2. Create or checkout a feature branch (e.g. `cursor/XX-slug` or `claude/XX-slug` per `.workflow/How We Work.md`). Do not commit or push to `main`.
+3. Check `STATUS.md` for current project state.
+4. **Read `.workflow/issue-tracker.md`** to see which issue tracker this project uses. Follow the **coordination guide linked there** to find available work and claim a task (and to check for in-progress work from the other model).
+5. If no work is available, ask your operator what to do next.
 
 ## Task Workflow
 
@@ -51,7 +52,7 @@ Follow the coordination guide linked in `.workflow/issue-tracker.md` to create t
 
 ## Task Completion Checklist
 
-1. **Rebase on main before closing** — when closing a session: fetch and rebase (`git fetch origin main && git rebase origin/main`), resolve any conflicts, then commit and push; use `git push --force-with-lease origin <branch>` if the branch was already pushed. Verify the PR shows no conflicts.
+1. **Rebase on main before closing** — when closing a session: fetch and rebase (`git fetch origin main && git rebase origin/main`), resolve any conflicts, then commit and push. Push only to your feature branch (e.g. `git push --force-with-lease origin <your-branch>`); never push to `main`. Verify the PR shows no conflicts.
 2. **Before every push** — update your model's metrics file (`.metrics/metrics-claude.md` or `.metrics/metrics-cursor.md`) and include it in the commit you're pushing, so each push carries up-to-date metrics. If there's no new work this session, no metrics change is required.
 3. **PR created or updated** — open or update the PR. Follow the coordination guide (`.workflow/issue-tracker.md`) for when to close or complete the tracker issue (e.g. when the PR is merged).
 4. **Downstream unblocked** — when the PR is merged, follow the coordination guide to flip any newly-unblocked work to available (or document in the PR comment).

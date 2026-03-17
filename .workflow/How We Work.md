@@ -21,7 +21,7 @@ Both models:
 - Check for conflicts before starting work
 - Claim tasks via the issue tracker set in `.workflow/issue-tracker.md` before working on them
 - Create PRs for all code changes
-- Never merge, never push directly to main
+- Work only on a feature branch; push only that branch. Never merge, never push directly to main
 
 ## Coordination Protocol
 
@@ -36,6 +36,7 @@ One-time setup (e.g. when creating or changing the choice) is in `.workflow/boot
 1. Read `.workflow/issue-tracker.md` to see which tracker this project uses.
 2. Open the coordination guide linked there.
 3. Use that guide to find available work, check for in-progress work from the other model (and its "Files to edit"), and claim a task without file overlap.
+4. Create or switch to a feature branch (see Branch Naming) before making changes.
 
 ### Branch Naming
 
