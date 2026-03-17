@@ -21,6 +21,8 @@ Set these for your agent (example values shown for Claude Code):
 3. Read `.workflow/issue-tracker.md` to see which issue tracker this project uses, then follow the coordination guide linked there to find and claim work (and to avoid file conflicts with the other model’s in-progress work)
 4. If no work is available, ask your operator what to work on
 
+Work on a feature branch only; never push to main.
+
 ## Workflow Reference
 
 All shared rules live in `.workflow/` — that is the single source of truth:
