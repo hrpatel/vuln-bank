@@ -18,6 +18,8 @@ Decide where tasks will live so **all** agents and operators look in the same pl
 
 **Set the choice:** Edit [.workflow/issue-tracker.md](issue-tracker.md). Set the line “This project uses:” to **GitHub Issues**, **Jira**, or **Beads**, and leave the rest of the file as-is (it already links to the right coordination guide).
 
+When using Beads with Jira sync (Beads for execution, Jira for reporting), see [Beads + Jira dual-tracker design](../docs/specs/2026-03-13-beads-jira-dual-tracker-design.md) and ensure the coordination guide and onboarding reflect Jira read/write.
+
 ---
 
 ## 2. Ensure the coordination guide exists

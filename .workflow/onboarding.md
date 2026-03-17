@@ -59,6 +59,10 @@ You need **Beads (`bd`)** and **Dolt** (Beads’ storage backend).
 
 **Verify:** `bd --version`. Then in the repo: `bd init` or `bd init --stealth` (see [beads-coordination.md](beads-coordination.md)).
 
+When this project uses **Beads with Jira sync** (see [dual-tracker design](../docs/specs/2026-03-13-beads-jira-dual-tracker-design.md)):
+- **Jira read:** Required for agents (epics, stories, Gherkin). Use acli (`acli auth`), Jira MCP, or REST with credentials.
+- **Jira write:** Required only where sync runs (local or CI) to create/update Jira issues from Beads. GitHub CLI (`gh`) remains required for PRs.
+
 ### If the project uses Jira
 
 You need **Atlassian CLI (`acli`)**.

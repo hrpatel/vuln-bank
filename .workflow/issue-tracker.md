@@ -10,9 +10,9 @@
 | Jira | [.workflow/jira-coordination.md](jira-coordination.md) |
 | Beads | [.workflow/beads-coordination.md](beads-coordination.md) |
 
-**This project uses: GitHub Issues**
+**This project uses: Beads**
 
-→ Follow **[github-issues-coordination.md](github-issues-coordination.md)** to find work, claim tasks, track dependencies, and complete work.
+→ Follow **[beads-coordination.md](beads-coordination.md)** to find work, claim tasks, and track dependencies. Implementation work is synced to Jira for reporting and visibility; see [Beads + Jira dual-tracker design](../docs/specs/2026-03-13-beads-jira-dual-tracker-design.md).
 
 ---
 

@@ -15,6 +15,16 @@
 - **Dependencies:** `blocks` / `blocked-by`; `bd ready` lists open issues with no active blockers.
 - **Types:** task, bug, feature, epic, chore, decision (and custom via config).
 
+### Beads + Jira (this project)
+
+This project uses Beads as the primary backlog with one-way sync to Jira for reporting and visibility.
+
+- **From Jira:** Agents read epics/stories/Gherkin from Jira and create implementation tasks in Beads with `--external-ref jira-PROJ-<story-id>`.
+- **Ad-hoc tasks:** Created during implementation go in the same epic as the story you're working on; standalone ad-hoc tasks go in the configured ad-hoc epic.
+- **Sync (Beads → Jira):** One-way only. All synced work appears as **standalone Jira issues** (no sub-tasks): same epic as the story + issue link to the story, or ad-hoc epic.
+
+Full design: [Beads + Jira dual-tracker design](../docs/specs/2026-03-13-beads-jira-dual-tracker-design.md).
+
 ### Modes
 
 | Mode | Use case |

@@ -46,7 +46,7 @@ A deliberately vulnerable banking application designed for practicing security t
 - **Two AI models working in parallel:**
   - Claude Code (CLI) — operated by Michael
   - Cursor — operated by coworker
-- Coordination via GitHub Issues (see `.workflow/github-issues-coordination.md`)
+- **Tracker:** Beads (primary); implementation work is synced to Jira for reporting and visibility. See [Beads + Jira dual-tracker design](docs/specs/2026-03-13-beads-jira-dual-tracker-design.md).
 - Metrics: `.metrics/` — split files per model (`metrics-claude.md`, `metrics-cursor.md`), Claude Code merges into `metrics.md`; update before every push
 
 ---
