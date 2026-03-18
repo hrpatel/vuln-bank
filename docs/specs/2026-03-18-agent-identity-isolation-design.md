@@ -21,28 +21,31 @@ When multiple AI agents run on the same machine against the same repository, two
 - Editor-agnostic: must work for Cursor, Claude Code, Aider, or any agent
 - Scales to arbitrary N agents
 - Uses existing `bd worktree` infrastructure (no changes to `bd` itself)
-- Operator controls agent provisioning; agents don't self-register
+- Supports both agent self-registration and operator provisioning
 
 ## Design
 
 ### 1. Spawn Script (`scripts/spawn-agent.sh`)
 
-An operator runs this once per agent, before starting the agent session.
+Creates an isolated agent workspace. Can be run by an operator (with an explicit name) or by an agent at session start (with `--auto` to generate a unique name).
 
 **Usage:**
 
 ```bash
 scripts/spawn-agent.sh <agent-name> [--branch <branch-name>]
+scripts/spawn-agent.sh --auto [--branch <branch-name>]
 
-# Examples
+# Operator-provisioned
 scripts/spawn-agent.sh cursor-a
 scripts/spawn-agent.sh cursor-b --branch cursor/02-xss-fix
-scripts/spawn-agent.sh claude-1
+
+# Agent self-registration
+scripts/spawn-agent.sh --auto
 ```
 
 **Steps performed:**
 
-1. Validate agent name (alphanumeric + hyphens, no spaces, not empty)
+1. If `--auto` is passed, generate a unique name: `agent-<8-hex-chars>` (from `/dev/urandom`). Otherwise validate the provided agent name (alphanumeric + hyphens, no spaces, not empty)
 2. Verify current directory is the main repo root: a git repo with `.beads/` present and no `.bd-agent-identity` (prevents spawning from inside another agent's worktree)
 3. Determine worktree path: `../<repo-basename>-<agent-name>` (sibling directory)
 4. Fail if worktree path already exists (no silent overwrites)
@@ -77,11 +80,11 @@ scripts/teardown-agent.sh <agent-name> [--force]
 
 All workflow entry points (`.cursorrules`, `CLAUDE.md`, `AGENTS.md`, `START HERE.md`) get a new **Step 0** at the top of the session-start checklist:
 
-> **Step 0: Verify agent identity.** Check that `.bd-agent-identity` exists in the current working directory. If found, read the agent name from it and verify that `git config get user.name` returns the same value (confirming the worktree-level identity is set). If `.bd-agent-identity` is not found, **stop and tell the operator:** "This workspace was not created with `spawn-agent.sh`. Run `scripts/spawn-agent.sh <name>` from the main repo, then open that folder."
+> **Step 0: Verify or create agent identity.** Check that `.bd-agent-identity` exists in the current working directory. If found, read the agent name from it and verify that `git config get user.name` returns the same value. If `.bd-agent-identity` is **not** found, self-register: run `scripts/spawn-agent.sh --auto` from the repo root, then use the new worktree path as the working directory for all subsequent commands.
 
-**Why this works without env vars:** The spawn script sets `git config --worktree user.name <agent-name>` in each worktree. Since `bd` resolves actor identity as `--actor` flag > `BD_ACTOR` env > `git user.name` > `$USER`, and `git user.name` is now per-worktree, every `bd` command automatically uses the correct identity. No `source .env.agent`, no wrappers, no PATH manipulation — it works transparently across subprocess boundaries because git config is file-based.
+**Why this works without env vars:** The spawn script sets `git config --worktree user.name <agent-name>` in each worktree. Since `bd` resolves actor identity as `--actor` flag > `BD_ACTOR` env > `git user.name` > `$USER`, and `git user.name` is now per-worktree, every `bd` command automatically uses the correct identity. No wrappers, no PATH manipulation — it works transparently across subprocess boundaries because git config is file-based.
 
-The main repo checkout intentionally does not have `.bd-agent-identity`. It is the "base camp" where the operator runs spawn/teardown scripts. No agent should work directly in it.
+The main repo checkout intentionally does not have `.bd-agent-identity`. It is the "base camp" — agents self-register from it but then work in their worktree. Operators can also pre-provision named workspaces with `scripts/spawn-agent.sh <name>`.
 
 ### 4. Claim Isolation
 
@@ -145,6 +148,6 @@ No changes to `bd` are needed. The fix is entirely in giving agents distinct ide
 
 ## Alternatives Considered
 
-**Self-registering agents:** Each agent auto-generates an ID and creates its own worktree at session start. Rejected because agents sharing a working directory face a race condition during the initial worktree creation — the problem we're trying to solve.
+**Operator-only provisioning (original v1):** Agents could not self-register; the operator had to run `spawn-agent.sh` before each agent session. Revised because agents can safely self-register — each creates a differently-named worktree, so there is no filesystem race. The `--auto` flag was added to support this.
 
 **Pre-provisioned slots:** One-time setup creates N permanent worktree directories. Rejected because the fixed slot count adds friction and wastes disk space for unused slots.

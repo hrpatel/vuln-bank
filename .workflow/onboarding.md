@@ -101,7 +101,17 @@ After this, follow [.workflow/START HERE.md](START%20HERE.md) and the coordinati
 
 **Problem:** Two AI agents using the **same directory** will fight over the working tree when each checks out a different branch. They also share the same `git user.name`, which makes `bd` claims indistinguishable.
 
-**Fix: `spawn-agent.sh`.** Run it once per agent from the main repo root. It creates a sibling worktree with a distinct agent identity.
+**Fix: `spawn-agent.sh`.** Each agent self-registers at session start, or an operator can pre-provision workspaces.
+
+**Self-registration (agents do this automatically):** When an agent starts a session and finds no `.bd-agent-identity`, it runs:
+
+```bash
+scripts/spawn-agent.sh --auto    # generates a unique name like agent-a3f29b01
+```
+
+Then it uses the new worktree as its working directory for the rest of the session.
+
+**Operator-provisioned (alternative):** Pre-create named workspaces before starting agents:
 
 ```bash
 cd ~/code/vuln-bank                                # main repo (base camp)
@@ -109,7 +119,7 @@ scripts/spawn-agent.sh cursor-a                    # creates ../vuln-bank-cursor
 scripts/spawn-agent.sh cursor-b --branch cursor/02-fix  # creates ../vuln-bank-cursor-b
 ```
 
-Point each agent at its own folder. The main repo is the "base camp" — no agent should work directly in it.
+Either way, each agent ends up in its own folder. The main repo is the "base camp" — no agent should work directly in it.
 
 **What the script does:**
 1. Creates a git worktree via `bd worktree create` (shares `.beads` database)
