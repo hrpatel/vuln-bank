@@ -99,39 +99,41 @@ After this, follow [.workflow/START HERE.md](START%20HERE.md) and the coordinati
 
 ## Parallel agents on one machine (filesystem isolation)
 
-**Problem:** Two AI agents (e.g. Cursor + Claude Code) using the **same directory** will fight over the working tree when each checks out a different branch.
+**Problem:** Two AI agents using the **same directory** will fight over the working tree when each checks out a different branch. They also share the same `git user.name`, which makes `bd` claims indistinguishable.
 
-**Fix: git worktree.** Keep one main checkout; add a **sibling directory** per extra agent (same repo, separate working tree).
-
-From your main repo (e.g. `~/code/vuln-bank`):
+**Fix: `spawn-agent.sh`.** Run it once per agent from the main repo root. It creates a sibling worktree with a distinct agent identity.
 
 ```bash
-cd ~/code/vuln-bank
-git fetch origin
-# New branch for the second agent:
-git worktree add ../vuln-bank-claude -b claude/01-my-task
-# Or attach to an existing branch:
-# git worktree add ../vuln-bank-claude claude/01-my-task
+cd ~/code/vuln-bank                                # main repo (base camp)
+scripts/spawn-agent.sh cursor-a                    # creates ../vuln-bank-cursor-a
+scripts/spawn-agent.sh cursor-b --branch cursor/02-fix  # creates ../vuln-bank-cursor-b
 ```
 
-Point the second agent at `~/code/vuln-bank-claude`. The first agent stays in `~/code/vuln-bank`. Push from either path: `git push -u origin <branch>`.
+Point each agent at its own folder. The main repo is the "base camp" — no agent should work directly in it.
+
+**What the script does:**
+1. Creates a git worktree via `bd worktree create` (shares `.beads` database)
+2. Sets `git config --worktree user.name <agent-name>` so `bd` commands use a distinct identity
+3. Writes `.bd-agent-identity` so agents can verify their workspace at session start
+
+**Teardown:**
+
+```bash
+scripts/teardown-agent.sh cursor-a            # removes ../vuln-bank-cursor-a
+scripts/teardown-agent.sh cursor-b --force    # force-remove even with uncommitted changes
+```
+
+**Listing active workspaces:**
 
 ```bash
 git worktree list
-git worktree remove ../vuln-bank-claude   # after merge or abandon
 ```
 
 ### Beads with multiple worktrees
 
-Beads (`.beads/`) is tied to where `bd init` ran. **Practical pattern:**
+All worktrees share the same Beads database (the spawn script sets up the `.beads` redirect). Run `bd ready`, `bd update <id> --claim`, and `bd close` from **any** worktree — claims are globally visible because the database is shared.
 
-1. Use **one** directory for Beads (usually the **main** worktree).
-2. Run **`bd ready`**, **`bd update <id> --claim`**, **`bd close`** only from that directory (or use a shared Dolt server per [Beads docs](https://steveyegge.github.io/beads/)).
-3. Edit code in the worktree that has your feature branch.
-
-Do not rely on separate `.beads` per worktree for coordination—claims would not be shared.
-
-See [.workflow/beads-coordination.md](beads-coordination.md) — *Parallel agents and directories*.
+Each worktree has a distinct `git user.name`, so `bd` records a different assignee per agent. This prevents the cross-claim confusion that occurs when all agents share one identity.
 
 ---
 
