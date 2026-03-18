@@ -2,16 +2,18 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: $(basename "$0") <agent-name> [--branch <branch-name>]"
+  echo "Usage: $(basename "$0") [<agent-name>] [--branch <branch-name>] [--auto]"
   echo ""
   echo "Creates an isolated agent workspace (git worktree + beads identity)."
-  echo "Run from the main repo root. Then open the new folder in your editor."
+  echo "Run from the main repo root."
   echo ""
   echo "Options:"
   echo "  --branch <name>   Git branch for the worktree (default: <agent-name>/work)"
+  echo "  --auto            Generate a unique agent name automatically"
   echo ""
   echo "Examples:"
   echo "  $(basename "$0") cursor-a"
+  echo "  $(basename "$0") --auto"
   echo "  $(basename "$0") cursor-b --branch cursor/02-xss-fix"
   exit 1
 }
@@ -21,12 +23,15 @@ die() { echo "ERROR: $1" >&2; exit 1; }
 # --- Parse arguments ---
 AGENT_NAME=""
 BRANCH=""
+AUTO=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --branch)
       [[ $# -lt 2 ]] && die "--branch requires a value"
       BRANCH="$2"; shift 2 ;;
+    --auto)
+      AUTO=true; shift ;;
     -h|--help)
       usage ;;
     -*)
@@ -36,6 +41,13 @@ while [[ $# -gt 0 ]]; do
       AGENT_NAME="$1"; shift ;;
   esac
 done
+
+# Auto-generate name if --auto
+if [[ "$AUTO" == "true" ]]; then
+  [[ -n "$AGENT_NAME" ]] && die "Cannot use --auto with an explicit agent name"
+  SUFFIX="$(head -c4 /dev/urandom | xxd -p)"
+  AGENT_NAME="agent-${SUFFIX}"
+fi
 
 [[ -z "$AGENT_NAME" ]] && usage
 
@@ -83,8 +95,6 @@ echo "  Agent:     $AGENT_NAME"
 echo "  Worktree:  $WORKTREE_PATH"
 echo "  Branch:    $BRANCH"
 echo "  Identity:  git user.name = $AGENT_NAME"
-echo ""
-echo "  Open this folder in your editor/agent."
 echo "========================================="
 echo ""
 echo "Active worktrees:"

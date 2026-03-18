@@ -14,7 +14,11 @@ bd dolt push          # Push beads data to remote
 
 ## Agent Identity (Parallel Agents)
 
-When running multiple agents on the same machine, each agent **must** work in its own worktree with a distinct identity. The operator provisions these before starting agents:
+Each agent **must** work in its own worktree with a distinct identity. Agents self-register at session start:
+
+**Self-registration (automatic):** If `.bd-agent-identity` is not found in your working directory, run `scripts/spawn-agent.sh --auto` from the repo root. This generates a unique agent name, creates an isolated worktree, and sets a distinct `git user.name`. Then use the new worktree path as your working directory for all subsequent commands.
+
+**Operator-provisioned (alternative):** Operators can pre-create named workspaces before starting agents:
 
 ```bash
 # From the main repo root:
@@ -26,8 +30,6 @@ scripts/teardown-agent.sh cursor-a
 ```
 
 Each agent's worktree has `git config --worktree user.name` set to the agent name. Since `bd` falls back to `git user.name`, all `bd` commands automatically use the correct identity. No `BD_ACTOR` env var needed.
-
-**Session start check:** Every agent must verify `.bd-agent-identity` exists in its working directory before doing any work. If missing, tell the operator to run `spawn-agent.sh`.
 
 ## Non-Interactive Shell Commands
 

@@ -16,7 +16,7 @@ Set these for your agent (example values shown for Claude Code):
 
 ## Quick Start
 
-**Step 0 — Verify identity (before anything else):** Check that `.bd-agent-identity` exists in the current working directory. Read the agent name from it and confirm `git config get user.name` matches. If the file is missing, tell your operator: _"This workspace was not created with `spawn-agent.sh`. Run it from the main repo root, then open the new folder."_ Do not proceed without a valid identity.
+**Step 0 — Verify or create agent identity (before anything else):** Check that `.bd-agent-identity` exists in the current working directory. If found, read the agent name and confirm `git config get user.name` matches. If **not** found, self-register: run `scripts/spawn-agent.sh --auto` from the repo root, then use the new worktree path as your working directory for all subsequent commands. Do not proceed without a valid agent identity.
 
 1. Read `.workflow/START HERE.md` for session rules and task workflow
 2. Read `STATUS.md` for current project state
