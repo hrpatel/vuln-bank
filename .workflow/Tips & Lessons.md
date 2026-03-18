@@ -19,6 +19,7 @@ A living document capturing what we've learned — from both AI models and both 
 - **Branch naming signals ownership.** Use `claude/` or `cursor/` prefixes so it's obvious who's working where.
 - **File-level granularity is enough.** You don't need line-level locking — if two tasks touch the same file, they conflict. Keep tasks scoped to avoid this.
 - **Claim before branch or edits (Beads: `bd update <id> --claim`).** The gap between picking a task and claiming it is where two agents duplicate work. Claim must succeed first; if it fails, pick another task—do not implement anyway.
+- **Agent identity must be unique per agent.** `[Hrdayesh]` When two agents share the same `git user.name`, `bd update --claim` can't distinguish them — both see the same assignee and assume the claim is theirs. Fix: `scripts/spawn-agent.sh` creates per-agent worktrees with distinct `git config --worktree user.name`. Same fix prevents filesystem collisions (shared worktree confusion).
 
 ## AI Code Generation
 
