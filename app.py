@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
 from datetime import datetime, timedelta
+import logging
 import random
 import secrets
 import string
@@ -19,6 +20,23 @@ from collections import defaultdict
 import requests
 from urllib.parse import urlparse
 import platform
+import logging
+
+# T2602: Configure application-level logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(name)s [%(funcName)s] %(message)s',
+    datefmt='%Y-%m-%dT%H:%M:%S'
+)
+logger = logging.getLogger('vuln-bank')
+
+# T2602: Structured logging for database/server activities and metadata
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(name)s [%(funcName)s] %(message)s',
+    datefmt='%Y-%m-%dT%H:%M:%S%z',
+)
+logger = logging.getLogger('vuln-bank')
 
 # Load environment variables
 load_dotenv()
@@ -49,15 +67,43 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 # T66: Prevent clickjacking — deny framing on all responses
+# T36: XSS mitigation headers — CSP, X-Content-Type-Options, X-XSS-Protection
 @app.after_request
-def set_anti_clickjacking_headers(response):
+def set_security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['Content-Security-Policy'] = "frame-ancestors 'none'"
+    response.headers['Content-Security-Policy'] = (
+        "frame-ancestors 'none'; "
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data: https:; "
+        "font-src 'self'"
+    )
     response.headers['X-Permitted-Cross-Domain-Policies'] = 'none'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
     return response
 
 # T76: Use env for secret key; no hardcoded default in production
 app.secret_key = os.getenv('FLASK_SECRET_KEY') or os.getenv('SECRET_KEY') or 'secret123'
+
+# T2139: Strip sensitive debug headers from all responses
+STRIP_DEBUG_HEADERS = os.getenv('STRIP_DEBUG_HEADERS', 'true').lower() == 'true'
+
+@app.after_request
+def strip_debug_headers(response):
+    if STRIP_DEBUG_HEADERS:
+        response.headers.pop('X-Debug-Info', None)
+        response.headers.pop('X-User-Info', None)
+        response.headers.pop('Server', None)
+    return response
+
+# T2602: Log every request with method, path, status, and client IP
+@app.after_request
+def log_request(response):
+    logger.info("http_request method=%s path=%s status=%d ip=%s",
+                request.method, request.path, response.status_code, get_client_ip())
+    return response
 
 # Rate limiting configuration
 RATE_LIMIT_WINDOW = 3 * 60 * 60  # 3 hours in seconds
@@ -222,7 +268,7 @@ def register():
                 return jsonify({
                     'status': 'error',
                     'message': 'Username already exists',
-                    'username': user_data.get('username'),
+                    'username': html.escape(str(user_data.get('username', ''))),
                     'tried_at': str(datetime.now())  # Information disclosure
                 }), 400
             
@@ -251,35 +297,21 @@ def register():
                 
             user = result[0]
             
-            # Excessive Data Exposure in Response
-            sensitive_data = {
+            # T2139: Return only necessary data; no debug/internal info
+            logger.info("user_registered user_id=%s username=%s", user[0], user[1])
+
+            return jsonify({
                 'status': 'success',
                 'message': 'Registration successful! Proceed to login',
-                'debug_data': {  # Sensitive data exposed
-                    'user_id': user[0],
-                    'username': user[1],
-                    'account_number': user[2],
-                    'balance': float(user[3]) if user[3] else 1000.0,
-                    'is_admin': user[4],
-                    'registration_time': str(datetime.now()),
-                    'server_info': request.headers.get('User-Agent'),
-                    'raw_data': user_data,  # Exposing raw input data
-                    'fields_registered': fields  # Show what fields were registered
-                }
-            }
-            
-            response = jsonify(sensitive_data)
-            response.headers['X-Debug-Info'] = str(sensitive_data['debug_data'])
-            response.headers['X-User-Info'] = f"id={user[0]};admin={user[4]};balance={user[3]}"
-            
-            return response
+                'username': user[1],
+                'account_number': user[2],
+            })
                 
         except Exception as e:
-            print(f"Registration error: {str(e)}")
+            logger.error("registration_failed error=%s", str(e))
             return jsonify({
                 'status': 'error',
                 'message': 'Registration failed',
-                'error': str(e)
             }), 500
         
     return render_template('register.html')
@@ -308,19 +340,14 @@ def login():
                 auth._clear_failures(username)
                 # Generate JWT token instead of using session
                 token = generate_token(user[0], user[1], user[5])
+                # T2139: No debug_info in response; T2602: log the event
+                logger.info("login_success user_id=%s username=%s ip=%s", user[0], user[1], get_client_ip())
                 response = make_response(jsonify({
                     'status': 'success',
                     'message': 'Login successful',
                     'token': token,
                     'accountNumber': user[3],
                     'isAdmin':       user[5],
-                    'debug_info': {  # Vulnerability: Information disclosure
-                        'user_id': user[0],
-                        'username': user[1],
-                        'account_number': user[3],
-                        'is_admin': user[5],
-                        'login_time': str(datetime.now())
-                    }
                 }))
                 # Vulnerability: Cookie without secure flag
                 response.set_cookie('token', token, httponly=True)
@@ -329,36 +356,34 @@ def login():
             # T70: Record failed attempt (may trigger lockout)
             if username:
                 auth._record_failure(username)
-            # Vulnerability: Username enumeration
+            logger.warning("login_failed username=%s ip=%s", username, get_client_ip())
             return jsonify({
                 'status': 'error',
                 'message': 'Invalid credentials',
-                'debug_info': {  # Vulnerability: Information disclosure
-                    'attempted_username': username,
-                    'time': str(datetime.now())
-                }
             }), 401
             
         except Exception as e:
-            print(f"Login error: {str(e)}")
+            logger.error("login_error error=%s", str(e))
             return jsonify({
                 'status': 'error',
                 'message': 'Login failed',
-                'error': str(e)
             }), 500
         
     return render_template('login.html')
 
+# T2139: Debug endpoint requires admin auth; passwords excluded from response
 @app.route('/debug/users')
-def debug_users():
-    users = execute_query("SELECT id, username, password, account_number, is_admin FROM users")
+@token_required
+def debug_users(current_user):
+    if not current_user.get('is_admin'):
+        return jsonify({'error': 'Access Denied'}), 403
+    users = execute_query("SELECT id, username, account_number, is_admin FROM users")
     return jsonify({'users': [
         {
             'id': u[0],
             'username': u[1],
-            'password': u[2],
-            'account_number': u[3],
-            'is_admin': u[4]
+            'account_number': u[2],
+            'is_admin': u[3]
         } for u in users
     ]})
 
@@ -394,34 +419,30 @@ def dashboard(current_user):
                          loans=loans,
                          is_admin=current_user.get('is_admin', False))
 
-# Check balance endpoint
+# T378: Require auth; restrict to own account
 @app.route('/check_balance/<account_number>')
-def check_balance(account_number):
-    # Broken Object Level Authorization (BOLA) vulnerability
-    # No authentication check, anyone can check any account balance
+@token_required
+def check_balance(current_user, account_number):
     try:
-        # Vulnerability: SQL Injection possible
-        user = execute_query(
-            f"SELECT username, balance FROM users WHERE account_number='{account_number}'"
+        # T378: Verify requestor owns this account
+        owner = execute_query(
+            "SELECT id, username, balance FROM users WHERE account_number = %s",
+            (account_number,)
         )
-        
-        if user:
-            # Vulnerability: Information disclosure
-            return jsonify({
-                'status': 'success',
-                'username': user[0][0],
-                'balance': float(user[0][1]),
-                'account_number': account_number
-            })
+        if not owner:
+            return jsonify({'status': 'error', 'message': 'Account not found'}), 404
+        if owner[0][0] != current_user['user_id']:
+            logger.warning("bola_check_balance user_id=%s tried account=%s", current_user['user_id'], account_number)
+            return jsonify({'status': 'error', 'message': 'Access denied'}), 403
+
+        # T2139: Only return balance, no extra info
         return jsonify({
-            'status': 'error',
-            'message': 'Account not found'
-        }), 404
+            'status': 'success',
+            'balance': float(owner[0][2]),
+        })
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        }), 500
+        logger.error("check_balance_error account=%s error=%s", account_number, str(e))
+        return jsonify({'status': 'error', 'message': 'Internal error'}), 500
 
 # Transfer endpoint
 @app.route('/transfer', methods=['POST'])
@@ -490,12 +511,20 @@ def transfer(current_user):
             'message': str(e)
         }), 500
 
-# Get transaction history endpoint
+# T378: Require auth and verify account ownership
 @app.route('/transactions/<account_number>')
-def get_transaction_history(account_number):
-    # Vulnerability: No authentication required (BOLA)
-    # T38: Parameterized query
+@token_required
+def get_transaction_history(current_user, account_number):
     try:
+        # T378: Verify requestor owns this account
+        owner = execute_query(
+            "SELECT id FROM users WHERE account_number = %s",
+            (account_number,)
+        )
+        if not owner or owner[0][0] != current_user['user_id']:
+            logger.warning("bola_transactions user_id=%s tried account=%s", current_user['user_id'], account_number)
+            return jsonify({'status': 'error', 'message': 'Access denied'}), 403
+
         transactions = execute_query(
             """SELECT id, from_account, to_account, amount, timestamp, transaction_type, description
                FROM transactions
@@ -504,7 +533,7 @@ def get_transaction_history(account_number):
             (account_number, account_number)
         )
         
-        # Vulnerability: Information disclosure
+        # T2139: Minimal response — no server_time, no query exposure
         transaction_list = [{
             'id': t[0],
             'from_account': t[1],
@@ -512,24 +541,18 @@ def get_transaction_history(account_number):
             'amount': float(t[3]),
             'timestamp': str(t[4]),
             'type': t[5],
-            'description': t[6]
-            #'query_used': query  # Vulnerability: Exposing SQL query
+            'description': t[6],
         } for t in transactions]
-        
+
+        logger.info("transactions_fetched user_id=%s account=%s count=%d", current_user['user_id'], account_number, len(transaction_list))
         return jsonify({
             'status': 'success',
-            'account_number': account_number,
             'transactions': transaction_list,
-            'server_time': str(datetime.now())  # Vulnerability: Server information disclosure
         })
         
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': str(e),
-            'query': query,  # Vulnerability: Query exposure
-            'account_number': account_number
-        }), 500
+        logger.error("transactions_error account=%s error=%s", account_number, str(e))
+        return jsonify({'status': 'error', 'message': 'Internal error'}), 500
 
 @app.route('/upload_profile_picture', methods=['POST'])
 @token_required
@@ -564,22 +587,39 @@ def upload_profile_picture(current_user):
             fetch=False
         )
         
+        logger.info("profile_picture_uploaded user_id=%s filename=%s", current_user['user_id'], filename)
         return jsonify({
             'status': 'success',
             'message': 'Profile picture uploaded successfully',
-            'file_path': os.path.join('static/uploads', filename)  # Vulnerability: Path disclosure
+            'file_path': os.path.join('static/uploads', filename),
         })
         
     except Exception as e:
-        # Vulnerability: Detailed error exposure
-        print(f"Profile picture upload error: {str(e)}")
+        logger.error("profile_picture_upload_error user_id=%s error=%s", current_user['user_id'], str(e))
         return jsonify({
             'status': 'error',
-            'message': str(e),
-            'file_path': file_path  # Vulnerability: Information disclosure
+            'message': 'Upload failed',
         }), 500
 
-# Upload profile picture by URL (Intentionally Vulnerable to SSRF)
+# T1365: SSRF-hardened profile picture URL import
+SSRF_ALLOWED_SCHEMES = {'http', 'https'}
+SSRF_MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MiB
+SSRF_ALLOWED_CONTENT_TYPES = {'image/jpeg', 'image/png', 'image/gif', 'image/webp'}
+
+def _is_private_ip(hostname):
+    """Block requests to private/internal IPs to prevent SSRF."""
+    import ipaddress
+    import socket
+    try:
+        ips = socket.getaddrinfo(hostname, None)
+        for family, _, _, _, sockaddr in ips:
+            ip = ipaddress.ip_address(sockaddr[0])
+            if ip.is_private or ip.is_loopback or ip.is_reserved or ip.is_link_local:
+                return True
+    except (socket.gaierror, ValueError):
+        return True
+    return False
+
 @app.route('/upload_profile_picture_url', methods=['POST'])
 @token_required
 def upload_profile_picture_url(current_user):
@@ -590,48 +630,60 @@ def upload_profile_picture_url(current_user):
         if not image_url:
             return jsonify({'status': 'error', 'message': 'image_url is required'}), 400
 
-        # Vulnerabilities:
-        # - No URL scheme/host allowlist (SSRF)
-        # - SSL verification disabled
-        # - Follows redirects
-        # - No content-type or size validation
-        resp = requests.get(image_url, timeout=10, allow_redirects=True, verify=False)
+        parsed = urlparse(image_url)
+
+        if parsed.scheme not in SSRF_ALLOWED_SCHEMES:
+            logger.warning("SSRF blocked: disallowed scheme=%s user_id=%s",
+                           parsed.scheme, current_user['user_id'])
+            return jsonify({'status': 'error', 'message': 'Only http and https URLs are allowed'}), 400
+
+        if not parsed.hostname:
+            return jsonify({'status': 'error', 'message': 'Invalid URL'}), 400
+
+        if _is_private_ip(parsed.hostname):
+            logger.warning("SSRF blocked: private_ip=%s user_id=%s",
+                           parsed.hostname, current_user['user_id'])
+            return jsonify({'status': 'error', 'message': 'Requests to internal addresses are not allowed'}), 400
+
+        resp = requests.get(image_url, timeout=10, allow_redirects=False, verify=True,
+                            stream=True, headers={'Accept': 'image/*'})
         if resp.status_code >= 400:
             return jsonify({'status': 'error', 'message': f'Failed to fetch URL: HTTP {resp.status_code}'}), 400
 
-        # Derive filename from URL path (user-controlled)
-        parsed = urlparse(image_url)
+        content_type = resp.headers.get('Content-Type', '').split(';')[0].strip().lower()
+        if content_type not in SSRF_ALLOWED_CONTENT_TYPES:
+            logger.warning("SSRF blocked: disallowed content_type=%s url=%s", content_type, image_url)
+            return jsonify({'status': 'error', 'message': 'URL must point to an image (JPEG, PNG, GIF, WebP)'}), 400
+
+        content = resp.content
+        if len(content) > SSRF_MAX_CONTENT_LENGTH:
+            return jsonify({'status': 'error', 'message': 'Image exceeds maximum allowed size (5 MB)'}), 400
+
         basename = os.path.basename(parsed.path) or 'downloaded'
         filename = secure_filename(basename)
         filename = f"{secrets.randbelow(1000000)}_{filename}"
         file_path = os.path.join(UPLOAD_FOLDER, filename)
 
-        # Save content directly without validation
         with open(file_path, 'wb') as f:
-            f.write(resp.content)
+            f.write(content)
 
-        # Store just the filename in DB (same pattern as file upload)
         execute_query(
             "UPDATE users SET profile_picture = %s WHERE id = %s",
             (filename, current_user['user_id']),
             fetch=False
         )
 
+        logger.info("profile_picture_url_imported user_id=%s", current_user['user_id'])
         return jsonify({
             'status': 'success',
             'message': 'Profile picture imported from URL',
-            'file_path': os.path.join('static/uploads', filename),
-            'debug_info': {  # Information disclosure for learning
-                'fetched_url': image_url,
-                'http_status': resp.status_code,
-                'content_length': len(resp.content)
-            }
+            'file_path': os.path.join('static/uploads', filename)
         })
     except Exception as e:
-        print(f"URL image import error: {str(e)}")
+        logger.error("profile_picture_url_error user_id=%s error=%s", current_user['user_id'], str(e))
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Failed to import image'
         }), 500
 
 # INTERNAL-ONLY ENDPOINTS FOR SSRF DEMO (INTENTIONALLY SENSITIVE)
@@ -785,16 +837,17 @@ def request_loan(current_user):
             fetch=False
         )
         
+        logger.info("loan_requested user_id=%s amount=%s", current_user['user_id'], amount)
         return jsonify({
             'status': 'success',
             'message': 'Loan requested successfully'
         })
         
     except Exception as e:
-        print(f"Loan request error: {str(e)}")
+        logger.error("loan_request_error user_id=%s error=%s", current_user['user_id'], str(e))
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Loan request failed',
         }), 500
 
 # Hidden admin endpoint (security through obscurity)
@@ -873,38 +926,22 @@ def approve_loan(current_user, loan_id):
             ]
             execute_transaction(queries)
             
+            logger.info("loan_approved loan_id=%s approved_by=%s", loan_id, current_user['username'])
             return jsonify({
                 'status': 'success',
                 'message': 'Loan approved successfully',
-                'debug_info': {  # Vulnerability: Information disclosure
-                    'loan_id': loan_id,
-                    'loan_amount': float(loan[2]),
-                    'user_id': loan[1],
-                    'approved_by': current_user['username'],
-                    'approved_at': str(datetime.now()),
-                    'loan_details': {  # Excessive data exposure
-                        'id': loan[0],
-                        'user_id': loan[1],
-                        'amount': float(loan[2]),
-                        'status': loan[3]
-                    }
-                }
             })
         
         return jsonify({
             'status': 'error',
             'message': 'Loan not found',
-            'loan_id': loan_id
         }), 404
         
     except Exception as e:
-        # Vulnerability: Detailed error exposure
-        print(f"Loan approval error: {str(e)}")
+        logger.error("loan_approval_error loan_id=%s error=%s", loan_id, str(e))
         return jsonify({
             'status': 'error',
             'message': 'Failed to approve loan',
-            'error': str(e),
-            'loan_id': loan_id
         }), 500
 
 # Delete account endpoint
@@ -924,21 +961,17 @@ def delete_account(current_user, user_id):
             fetch=False
         )
         
+        logger.info("account_deleted user_id=%s deleted_by=%s", user_id, current_user['username'])
         return jsonify({
             'status': 'success',
             'message': 'Account deleted successfully',
-            'debug_info': {
-                'deleted_user_id': user_id,
-                'deleted_by': current_user['username'],
-                'timestamp': str(datetime.now())
-            }
         })
         
     except Exception as e:
-        print(f"Delete account error: {str(e)}")
+        logger.error("delete_account_error user_id=%s error=%s", user_id, str(e))
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Delete failed',
         }), 500
 
 # Create admin endpoint
@@ -968,10 +1001,10 @@ def create_admin(current_user):
         })
         
     except Exception as e:
-        print(f"Create admin error: {str(e)}")
+        logger.error("create_admin_error error=%s", str(e))
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Failed to create admin',
         }), 500
 
 
@@ -999,29 +1032,23 @@ def forgot_password():
                     fetch=False
                 )
                 
-                # Vulnerability: Information disclosure
+                logger.info("password_reset_requested username=%s", username)
                 return jsonify({
                     'status': 'success',
-                    'message': 'Reset PIN has been sent to your email.',
-                    'debug_info': {  # Vulnerability: Information disclosure
-                        'timestamp': str(datetime.now()),
-                        'username': username,
-                        'pin_length': len(reset_pin),
-                        'pin': reset_pin  # Intentionally exposing pin for learning
-                    }
+                    'message': 'If an account with that username exists, a reset PIN has been sent.',
                 })
             else:
-                # Vulnerability: Username enumeration
+                # T2139: Prevent username enumeration — same response
                 return jsonify({
-                    'status': 'error',
-                    'message': 'User not found'
-                }), 404
+                    'status': 'success',
+                    'message': 'If an account with that username exists, a reset PIN has been sent.',
+                })
                 
         except Exception as e:
-            print(f"Forgot password error: {str(e)}")
+            logger.error("forgot_password_error error=%s", str(e))
             return jsonify({
                 'status': 'error',
-                'message': str(e)
+                'message': 'Request failed',
             }), 500
             
     return render_template('forgot_password.html')
@@ -1064,12 +1091,10 @@ def reset_password():
                 }), 400
                 
         except Exception as e:
-            # Vulnerability: Detailed error exposure
-            print(f"Reset password error: {str(e)}")
+            logger.error("reset_password_error error=%s", str(e))
             return jsonify({
                 'status': 'error',
                 'message': 'Password reset failed',
-                'error': str(e)
             }), 500
             
     return render_template('reset_password.html')
@@ -1087,41 +1112,32 @@ def api_v1_forgot_password():
         )
         
         if user:
-            # Weak reset pin logic (CWE-330)
             # T151: Cryptographically secure random for reset PIN
             reset_pin = str(secrets.randbelow(900) + 100)
             
-            # Store the reset PIN in database (in plaintext - CWE-319)
             execute_query(
                 "UPDATE users SET reset_pin = %s WHERE username = %s",
                 (reset_pin, username),
                 fetch=False
             )
             
-            # Vulnerability: Information disclosure
+            logger.info("api_v1_password_reset_requested username=%s", username)
+            # T2139: No PIN in response
             return jsonify({
                 'status': 'success',
-                'message': 'Reset PIN has been sent to your email.',
-                'debug_info': {  # Vulnerability: Information disclosure
-                    'timestamp': str(datetime.now()),
-                    'username': username,
-                    'pin_length': len(reset_pin),
-                    'pin': reset_pin  # Intentionally exposing pin for learning
-                }
+                'message': 'If an account with that username exists, a reset PIN has been sent.',
             })
         else:
-            # Vulnerability: Username enumeration
             return jsonify({
-                'status': 'error',
-                'message': 'User not found'
-            }), 404
+                'status': 'success',
+                'message': 'If an account with that username exists, a reset PIN has been sent.',
+            })
                 
     except Exception as e:
-        # Vulnerability: Detailed error exposure
-        print(f"Forgot password error: {str(e)}")
+        logger.error("api_v1_forgot_password_error error=%s", str(e))
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Request failed',
         }), 500
 
 # V2 API - Fixes excessive data exposure but still vulnerable to other issues
@@ -1147,29 +1163,22 @@ def api_v2_forgot_password():
                 fetch=False
             )
             
-            # Fixed: No longer exposing PIN and PIN length in response
+            logger.info("api_v2_password_reset_requested username=%s", username)
             return jsonify({
                 'status': 'success',
-                'message': 'Reset PIN has been sent to your email.',
-                'debug_info': {  # Still excessive data exposure but not PIN
-                    'timestamp': str(datetime.now()),
-                    'username': username
-                    # PIN and PIN length removed
-                }
+                'message': 'If an account with that username exists, a reset PIN has been sent.',
             })
         else:
-            # Vulnerability: Username enumeration still possible
             return jsonify({
-                'status': 'error',
-                'message': 'User not found'
-            }), 404
+                'status': 'success',
+                'message': 'If an account with that username exists, a reset PIN has been sent.',
+            })
                 
     except Exception as e:
-        # Vulnerability: Detailed error exposure still exists
-        print(f"Forgot password error: {str(e)}")
+        logger.error("api_v2_forgot_password_error error=%s", str(e))
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Request failed',
         }), 500
 
 # V3 API - Uses 4-digit PIN, otherwise similar vulnerabilities
@@ -1195,28 +1204,22 @@ def api_v3_forgot_password():
                 fetch=False
             )
             
-            # Fixed: No PIN exposure in response
+            logger.info("api_v3_password_reset_requested username=%s", username)
             return jsonify({
                 'status': 'success',
-                'message': 'Reset PIN has been sent to your email.',
-                'debug_info': {  # Still minor data exposure
-                    'timestamp': str(datetime.now()),
-                    'username': username
-                }
+                'message': 'If an account with that username exists, a reset PIN has been sent.',
             })
         else:
-            # Vulnerability: Username enumeration still possible
             return jsonify({
-                'status': 'error',
-                'message': 'User not found'
-            }), 404
+                'status': 'success',
+                'message': 'If an account with that username exists, a reset PIN has been sent.',
+            })
                 
     except Exception as e:
-        # Vulnerability: Detailed error exposure still exists
-        print(f"Forgot password error: {str(e)}")
+        logger.error("api_v3_forgot_password_error error=%s", str(e))
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': 'Request failed',
         }), 500
 
 # V1 API for reset password
@@ -1244,36 +1247,22 @@ def api_v1_reset_password():
                 fetch=False
             )
             
+            logger.info("api_v1_password_reset_success username=%s", username)
             return jsonify({
                 'status': 'success',
                 'message': 'Password has been reset successfully',
-                'debug_info': {  # Additional debug info for v1
-                    'timestamp': str(datetime.now()),
-                    'username': username,
-                    'reset_success': True,
-                    'reset_pin_used': reset_pin  # Intentionally exposing used pin
-                }
             })
         else:
-            # Vulnerability: Username enumeration possible
             return jsonify({
                 'status': 'error',
                 'message': 'Invalid reset PIN',
-                'debug_info': {  # Additional debug info for v1
-                    'timestamp': str(datetime.now()),
-                    'username': username,
-                    'reset_success': False,
-                    'attempted_pin': reset_pin  # Exposing attempted pin
-                }
             }), 400
                 
     except Exception as e:
-        # Vulnerability: Detailed error exposure
-        print(f"Reset password error: {str(e)}")
+        logger.error("api_v1_reset_password_error error=%s", str(e))
         return jsonify({
             'status': 'error',
             'message': 'Password reset failed',
-            'error': str(e)
         }), 500
 
 # V2 API for reset password
@@ -1494,8 +1483,14 @@ def get_virtual_cards(current_user):
 @token_required
 def toggle_card_freeze(current_user, card_id):
     try:
-        # Vulnerability: No CSRF protection
-        # Vulnerability: BOLA - no verification if card belongs to user
+        # T378: Verify card belongs to requesting user
+        card_owner = execute_query(
+            "SELECT user_id FROM virtual_cards WHERE id = %s", (card_id,)
+        )
+        if not card_owner or card_owner[0][0] != current_user['user_id']:
+            logger.warning("bola_toggle_freeze user_id=%s card_id=%s", current_user['user_id'], card_id)
+            return jsonify({'status': 'error', 'message': 'Access denied'}), 403
+
         result = execute_query(
             "UPDATE virtual_cards SET is_frozen = NOT is_frozen WHERE id = %s RETURNING is_frozen",
             (card_id,)
@@ -1522,7 +1517,14 @@ def toggle_card_freeze(current_user, card_id):
 @token_required
 def get_card_transactions(current_user, card_id):
     try:
-        # Vulnerability: BOLA - no verification if card belongs to user
+        # T378: Verify card belongs to requesting user
+        card_owner = execute_query(
+            "SELECT user_id FROM virtual_cards WHERE id = %s", (card_id,)
+        )
+        if not card_owner or card_owner[0][0] != current_user['user_id']:
+            logger.warning("bola_card_transactions user_id=%s card_id=%s", current_user['user_id'], card_id)
+            return jsonify({'status': 'error', 'message': 'Access denied'}), 403
+
         transactions = execute_query(
             """SELECT ct.*, vc.card_number
                FROM card_transactions ct
@@ -1557,29 +1559,31 @@ def get_card_transactions(current_user, card_id):
 @token_required
 def update_card_limit(current_user, card_id):
     try:
+        # T378: Verify card belongs to requesting user
+        card_owner = execute_query(
+            "SELECT user_id FROM virtual_cards WHERE id = %s", (card_id,)
+        )
+        if not card_owner or card_owner[0][0] != current_user['user_id']:
+            logger.warning("bola_update_limit user_id=%s card_id=%s", current_user['user_id'], card_id)
+            return jsonify({'status': 'error', 'message': 'Access denied'}), 403
+
         data = request.get_json()
         
         # Mass Assignment Vulnerability - Build dynamic query based on all input fields
         update_fields = []
         update_values = []
-        updated_fields_list = []  # Store field names in a regular list
+        updated_fields_list = []
         
-        # Iterate through all fields sent in request
-        # Vulnerability: No whitelist of allowed fields
-        # This allows updating any column including balance
         for key, value in data.items():
-            # Convert value to float if it's numeric
             try:
                 value = float(value)
             except (ValueError, TypeError):
                 value = str(value)
             
-            # Vulnerability: Direct field name injection
             update_fields.append(f"{key} = %s")
             update_values.append(value)
-            updated_fields_list.append(key)  # Add to list instead of dict_keys
+            updated_fields_list.append(key)
             
-        # Vulnerability: BOLA - no verification if card belongs to user
         query = f"""
             UPDATE virtual_cards 
             SET {', '.join(update_fields)}
@@ -1590,21 +1594,11 @@ def update_card_limit(current_user, card_id):
         result = execute_query(query, tuple(update_values))
         
         if result:
-            # Vulnerability: Information disclosure - returning all updated fields
+            # T2139: Minimal response — no debug_info
+            logger.info("card_limit_updated user_id=%s card_id=%s fields=%s", current_user['user_id'], card_id, updated_fields_list)
             return jsonify({
                 'status': 'success',
                 'message': 'Card updated successfully',
-                'debug_info': {
-                    'updated_fields': updated_fields_list,  # Use list instead of dict_keys
-                    'card_details': {
-                        'id': result[0][0],
-                        'card_limit': float(result[0][5]),
-                        'current_balance': float(result[0][6]),
-                        'is_frozen': result[0][7],
-                        'is_active': result[0][8],
-                        'card_type': result[0][11]
-                    }
-                }
             })
             
         return jsonify({
@@ -1635,9 +1629,10 @@ def get_bill_categories():
             } for cat in categories]
         })
     except Exception as e:
+        logger.error("bill_categories_error error=%s", str(e))
         return jsonify({
             'status': 'error',
-            'message': str(e)  # Vulnerability: Detailed error exposure
+            'message': 'Failed to load categories',
         }), 500
 
 @app.route('/api/billers/by-category/<int:category_id>', methods=['GET'])
@@ -1683,11 +1678,18 @@ def create_bill_payment(current_user):
         # Vulnerability: No payment method validation
         
         if payment_method == 'virtual_card' and card_id:
-            # Vulnerability: BOLA - no verification if card belongs to user
-            card = execute_query(
-                "SELECT current_balance, card_limit, is_frozen FROM virtual_cards WHERE id = %s",
+            # T378: Verify card belongs to requesting user
+            card_row = execute_query(
+                "SELECT user_id, current_balance, card_limit, is_frozen FROM virtual_cards WHERE id = %s",
                 (card_id,)
-            )[0]
+            )
+            if not card_row:
+                return jsonify({'status': 'error', 'message': 'Card not found'}), 404
+            card_data = card_row[0]
+            if card_data[0] != current_user['user_id']:
+                logger.warning("bola_bill_payment user_id=%s card_id=%s", current_user['user_id'], card_id)
+                return jsonify({'status': 'error', 'message': 'Access denied'}), 403
+            card = (card_data[1], card_data[2], card_data[3])
             
             if card[2]:  # is_frozen
                 return jsonify({
@@ -1884,11 +1886,10 @@ def ai_chat_authenticated(current_user):
         })
         
     except Exception as e:
-        # VULNERABILITY: Detailed error messages
+        logger.error("ai_chat_error user_id=%s error=%s", current_user['user_id'], str(e))
         return jsonify({
             'status': 'error',
-            'message': f'AI chat error: {str(e)}',
-            'system_info': ai_agent.get_system_info()
+            'message': 'AI chat unavailable',
         }), 500
 
 @app.route('/api/ai/chat/anonymous', methods=['POST'])
@@ -1924,10 +1925,10 @@ def ai_chat_anonymous():
         })
         
     except Exception as e:
+        logger.error("ai_chat_anonymous_error error=%s", str(e))
         return jsonify({
             'status': 'error',
-            'message': f'Anonymous AI chat error: {str(e)}',
-            'system_info': ai_agent.get_system_info()
+            'message': 'AI chat unavailable',
         }), 500
 
 @app.route('/api/ai/system-info', methods=['GET'])
@@ -2041,7 +2042,9 @@ def ai_rate_limit_status():
         }), 500
 
 if __name__ == '__main__':
+    logger.info("app_startup host=0.0.0.0 port=5000")
     init_db()
     init_auth_routes(app)
+    logger.info("app_ready routes_registered=true")
     # Vulnerability: Debug mode enabled in production
     app.run(host='0.0.0.0', port=5000, debug=True)

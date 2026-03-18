@@ -1,8 +1,12 @@
+import logging
 import os
 import psycopg2
 from psycopg2 import pool
 from datetime import datetime
 import time
+
+# T2602: Structured logging for database activities
+logger = logging.getLogger('vuln-bank.database')
 
 # Vulnerable database configuration
 # CWE-259: Use of Hard-coded Password
@@ -33,16 +37,19 @@ def init_connection_pool(min_connections=1, max_connections=10, max_retries=5, r
                 max_connections,
                 **DB_CONFIG
             )
-            print("Database connection pool created successfully")
+            logger.info("db_pool_created min=%d max=%d host=%s db=%s",
+                        min_connections, max_connections,
+                        DB_CONFIG.get('host'), DB_CONFIG.get('dbname'))
             return
         except Exception as e:
             retry_count += 1
-            print(f"Failed to connect to database (attempt {retry_count}/{max_retries}): {e}")
+            logger.warning("db_connect_failed attempt=%d/%d error=%s",
+                           retry_count, max_retries, str(e))
             if retry_count < max_retries:
-                print(f"Retrying in {retry_delay} seconds...")
+                logger.info("db_connect_retry delay=%ds", retry_delay)
                 time.sleep(retry_delay)
             else:
-                print("Max retries reached. Could not establish database connection.")
+                logger.error("db_connect_exhausted max_retries=%d", max_retries)
                 raise e
 
 def get_connection():
@@ -208,11 +215,10 @@ def init_db():
             """)
             
             conn.commit()
-            print("Database initialized successfully")
+            logger.info("db_initialized tables=users,loans,transactions,virtual_cards,card_transactions,bill_categories,billers,bill_payments")
             
     except Exception as e:
-        # Vulnerability: Detailed error information exposed
-        print(f"Error initializing database: {e}")
+        logger.error("db_init_error error=%s", str(e))
         conn.rollback()
         raise e
     finally:
@@ -230,13 +236,17 @@ def execute_query(query, params=None, fetch=True):
             result = None
             if fetch:
                 result = cursor.fetchall()
-            # Always commit for INSERT, UPDATE, DELETE operations
-            if query.strip().upper().startswith(('INSERT', 'UPDATE', 'DELETE')):
+            stmt_type = query.strip().split()[0].upper() if query.strip() else 'UNKNOWN'
+            if stmt_type in ('INSERT', 'UPDATE', 'DELETE'):
                 conn.commit()
+                logger.info("db_write op=%s rows_affected=%d", stmt_type, cursor.rowcount)
+            else:
+                row_count = len(result) if result else 0
+                logger.debug("db_read op=%s rows_returned=%d", stmt_type, row_count)
             return result
     except Exception as e:
-        # Vulnerability: Error details might be exposed to users
         conn.rollback()
+        logger.error("db_query_error op=%s error=%s", query.strip()[:40], str(e))
         raise e
     finally:
         return_connection(conn)
@@ -253,9 +263,11 @@ def execute_transaction(queries_and_params):
             for query, params in queries_and_params:
                 cursor.execute(query, params)
             conn.commit()
+            logger.info("db_transaction_commit statements=%d", len(queries_and_params))
     except Exception as e:
-        # Vulnerability: Transaction rollback exposed
         conn.rollback()
+        logger.error("db_transaction_rollback statements=%d error=%s",
+                      len(queries_and_params), str(e))
         raise e
     finally:
         return_connection(conn)

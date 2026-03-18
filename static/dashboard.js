@@ -108,22 +108,19 @@ async function handleTransfer(event) {
 
         const data = await response.json();
         if (data.status === 'success') {
-            // Update message and balance
-            document.getElementById('message').innerHTML = data.message;
+            // T37: Use textContent to prevent DOM XSS
+            document.getElementById('message').textContent = data.message;
             document.getElementById('message').style.color = 'green';
             document.getElementById('balance').textContent = data.new_balance;
             
-            // Refresh transactions
             fetchTransactions();
-            
-            // Clear form
             event.target.reset();
         } else {
-            document.getElementById('message').innerHTML = data.message;
+            document.getElementById('message').textContent = data.message;
             document.getElementById('message').style.color = 'red';
         }
     } catch (error) {
-        document.getElementById('message').innerHTML = 'Transfer failed';
+        document.getElementById('message').textContent = 'Transfer failed';
         document.getElementById('message').style.color = 'red';
     }
 }
@@ -147,7 +144,7 @@ async function handleLoanRequest(event) {
 
         const data = await response.json();
         if (data.status === 'success') {
-            document.getElementById('message').innerHTML = 'Loan requested successfully, our staff will review and approve!';
+            document.getElementById('message').textContent = 'Loan requested successfully, our staff will review and approve!';
             document.getElementById('message').style.color = 'green';
             
             // Check if loans section exists, if not create it
@@ -173,23 +170,28 @@ async function handleLoanRequest(event) {
                 document.getElementById('loans').appendChild(loansSection);
             }
             
-            // Add new loan to the table
+            // T37: Build row with safe DOM methods
             const loansTableBody = loansSection.querySelector('tbody');
             const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td>$${jsonData.amount}</td>
-                <td><span class="status-pending">pending</span></td>
-            `;
+            const amountCell = document.createElement('td');
+            amountCell.textContent = '$' + jsonData.amount;
+            const statusCell = document.createElement('td');
+            const statusSpan = document.createElement('span');
+            statusSpan.className = 'status-pending';
+            statusSpan.textContent = 'pending';
+            statusCell.appendChild(statusSpan);
+            newRow.appendChild(amountCell);
+            newRow.appendChild(statusCell);
             loansTableBody.appendChild(newRow);
             
             // Clear form
             event.target.reset();
         } else {
-            document.getElementById('message').innerHTML = data.message;
+            document.getElementById('message').textContent = data.message;
             document.getElementById('message').style.color = 'red';
         }
     } catch (error) {
-        document.getElementById('message').innerHTML = 'Loan request failed';
+        document.getElementById('message').textContent = 'Loan request failed';
         document.getElementById('message').style.color = 'red';
     }
 }
@@ -276,19 +278,23 @@ async function fetchTransactions() {
                 return;
             }
             
-            // Vulnerability: innerHTML used with unsanitized data
+            // T37: Escape all server-sourced values before innerHTML insertion
             const transactionHtml = data.transactions.map(t => {
                 const isOutgoing = t.from_account === accountNumber;
                 const transactionType = isOutgoing ? 'sent' : 'received';
+                const accountLabel = isOutgoing
+                    ? 'To: ' + escapeHtml(t.to_account)
+                    : 'From: ' + escapeHtml(t.from_account);
+                const descHtml = t.description
+                    ? `<div class="transaction-description">${escapeHtml(t.description)}</div>`
+                    : '';
                 
                 return `
                     <div class="transaction-item ${transactionType}">
                         <div class="transaction-details">
-                            <div class="transaction-account">
-                                ${isOutgoing ? 'To: ' + t.to_account : 'From: ' + t.from_account}
-                            </div>
-                            <div class="transaction-date">${t.timestamp}</div>
-                            ${t.description ? `<div class="transaction-description">${t.description}</div>` : ''}
+                            <div class="transaction-account">${accountLabel}</div>
+                            <div class="transaction-date">${escapeHtml(t.timestamp)}</div>
+                            ${descHtml}
                         </div>
                         <div class="transaction-amount ${transactionType}">
                             ${isOutgoing ? '-' : '+'}$${Math.abs(t.amount)}
@@ -336,14 +342,14 @@ function renderVirtualCards() {
         return;
     }
     
-    // Vulnerability: XSS possible in card rendering
+    // T37: Escape server data in card rendering
     container.innerHTML = virtualCards.map(card => `
         <div class="virtual-card ${card.is_frozen ? 'frozen' : ''}" id="card-${card.id}">
-            <div class="card-type">${card.card_type.toUpperCase()}</div>
-            <div class="card-number">${formatCardNumber(card.card_number)}</div>
+            <div class="card-type">${escapeHtml(card.card_type.toUpperCase())}</div>
+            <div class="card-number">${escapeHtml(formatCardNumber(card.card_number))}</div>
             <div class="card-details">
-                <div>Exp: ${card.expiry_date}</div>
-                <div>CVV: ${card.cvv}</div>
+                <div>Exp: ${escapeHtml(card.expiry_date)}</div>
+                <div>CVV: ${escapeHtml(card.cvv)}</div>
             </div>
             <div>Limit: $${card.limit}</div>
             <div>Balance: $${card.balance}</div>
@@ -377,22 +383,23 @@ function showCardDetails(cardId) {
     const modal = document.getElementById('cardDetailsModal');
     const content = document.getElementById('cardDetailsContent');
     
+    // T37: Escape card fields
     content.innerHTML = `
         <div class="form-group">
             <label>Card Number</label>
-            <p>${formatCardNumber(card.card_number)}</p>
+            <p>${escapeHtml(formatCardNumber(card.card_number))}</p>
         </div>
         <div class="form-group">
             <label>CVV</label>
-            <p>${card.cvv}</p>
+            <p>${escapeHtml(card.cvv)}</p>
         </div>
         <div class="form-group">
             <label>Expiry Date</label>
-            <p>${card.expiry_date}</p>
+            <p>${escapeHtml(card.expiry_date)}</p>
         </div>
         <div class="form-group">
             <label>Card Type</label>
-            <p>${card.card_type}</p>
+            <p>${escapeHtml(card.card_type)}</p>
         </div>
         <div class="form-group">
             <label>Current Limit</label>
@@ -408,7 +415,7 @@ function showCardDetails(cardId) {
         </div>
         <div class="form-group">
             <label>Created</label>
-            <p>${new Date(card.created_at).toLocaleDateString()}</p>
+            <p>${escapeHtml(new Date(card.created_at).toLocaleDateString())}</p>
         </div>
     `;
     
@@ -440,14 +447,14 @@ async function handleCreateCard(event) {
             hideCreateCardModal();
             await fetchVirtualCards();
             
-            document.getElementById('message').innerHTML = 'Virtual card created successfully!';
+            document.getElementById('message').textContent = 'Virtual card created successfully!';
             document.getElementById('message').style.color = 'green';
         } else {
-            document.getElementById('message').innerHTML = data.message;
+            document.getElementById('message').textContent = data.message;
             document.getElementById('message').style.color = 'red';
         }
     } catch (error) {
-        document.getElementById('message').innerHTML = 'Failed to create virtual card';
+        document.getElementById('message').textContent = 'Failed to create virtual card';
         document.getElementById('message').style.color = 'red';
     }
 }
@@ -465,11 +472,11 @@ async function toggleCardFreeze(cardId) {
         if (data.status === 'success') {
             await fetchVirtualCards();
         } else {
-            document.getElementById('message').innerHTML = data.message;
+            document.getElementById('message').textContent = data.message;
             document.getElementById('message').style.color = 'red';
         }
     } catch (error) {
-        document.getElementById('message').innerHTML = 'Failed to freeze/unfreeze card';
+        document.getElementById('message').textContent = 'Failed to freeze/unfreeze card';
         document.getElementById('message').style.color = 'red';
     }
 }

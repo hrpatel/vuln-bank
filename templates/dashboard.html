@@ -60,8 +60,7 @@
         <!-- Greeting section with balance card -->
         <div class="greeting-section">
             <div class="greeting-text">
-                <!-- Vulnerability: XSS possible in username -->
-                <h1>Welcome back, {{ username | safe }}</h1>
+                <h1>Welcome back, {{ username }}</h1>
                 <p id="current-date"></p>
             </div>
             <div class="account-card">
@@ -391,7 +390,7 @@
                         </svg>
                     </div>
                     <div class="message-content">
-                        <div class="message-text">Hi {{ username }}! I'm your AI banking assistant. I can help you with account inquiries, balance checks, and transaction history. 
+                        <div class="message-text">Hi {{ username | e }}! I'm your AI banking assistant. I can help you with account inquiries, balance checks, and transaction history. 
                         <br><br>
                         🔐 <strong>Authenticated Mode</strong>: I have access to your account details
                         <br>👤 <strong>Anonymous Mode</strong>: No personal data, but still vulnerable to attacks</div>
