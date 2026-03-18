@@ -162,18 +162,13 @@ def init_auth_routes(app):
         # Generate token
         token = generate_token(user[0], user[1], user[5])
         
-        # Vulnerability: Exposed sensitive data in response
+        # T2139: No debug_info in response
         return jsonify({
             'token': token,
             'user_id': user[0],
             'username': user[1],
             'account_number': user[3],
             'is_admin': user[5],
-            'debug_info': {
-                'login_time': str(datetime.datetime.now()),
-                'ip_address': request.remote_addr,
-                'user_agent': request.headers.get('User-Agent')
-            }
         })
 
     @app.route('/api/check_balance', methods=['GET'])

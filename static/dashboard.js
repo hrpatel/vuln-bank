@@ -500,14 +500,15 @@ async function showTransactionHistory(cardId) {
                 return;
             }
             
+            // T37: Escape merchant and timestamp
             content.innerHTML = `
                 <h4>Transaction History</h4>
                 <div class="transaction-list">
                     ${data.transactions.map(t => `
                         <div class="transaction-item">
                             <div class="transaction-details">
-                                <div class="transaction-account">${t.merchant}</div>
-                                <div class="transaction-date">${new Date(t.timestamp).toLocaleString()}</div>
+                                <div class="transaction-account">${escapeHtml(t.merchant || '')}</div>
+                                <div class="transaction-date">${escapeHtml(new Date(t.timestamp).toLocaleString())}</div>
                             </div>
                             <div class="transaction-amount">${t.amount}</div>
                         </div>
@@ -517,11 +518,11 @@ async function showTransactionHistory(cardId) {
             
             modal.style.display = 'flex';
         } else {
-            document.getElementById('message').innerHTML = data.message;
+            document.getElementById('message').textContent = data.message;
             document.getElementById('message').style.color = 'red';
         }
     } catch (error) {
-        document.getElementById('message').innerHTML = 'Failed to load transaction history';
+        document.getElementById('message').textContent = 'Failed to load transaction history';
         document.getElementById('message').style.color = 'red';
     }
 }
@@ -576,14 +577,14 @@ async function handleCardUpdate(event, cardId) {
         if (data.status === 'success') {
             await fetchVirtualCards();
             hideCardDetailsModal();
-            document.getElementById('message').innerHTML = 'Card limit updated successfully';
+            document.getElementById('message').textContent = 'Card limit updated successfully';
             document.getElementById('message').style.color = 'green';
         } else {
-            document.getElementById('message').innerHTML = data.message;
+            document.getElementById('message').textContent = data.message;
             document.getElementById('message').style.color = 'red';
         }
     } catch (error) {
-        document.getElementById('message').innerHTML = 'Error updating card limit';
+        document.getElementById('message').textContent = 'Error updating card limit';
         document.getElementById('message').style.color = 'red';
     }
     
@@ -610,11 +611,11 @@ async function loadBillCategories() {
         
         if (data.status === 'success') {
             const select = document.getElementById('billCategory');
-            // Vulnerability: XSS possible in category name and description
+            // T37: Escape category names
             select.innerHTML = `
                 <option value="">Select Category</option>
                 ${data.categories.map(cat => `
-                    <option value="${cat.id}">${cat.name}</option>
+                    <option value="${cat.id}">${escapeHtml(cat.name)}</option>
                 `).join('')}
             `;
         }
@@ -654,13 +655,14 @@ async function loadBillers(categoryId) {
             // Sort billers by name for consistency
             uniqueBillers.sort((a, b) => a.name.localeCompare(b.name));
 
+            // T37: Escape biller names
             select.innerHTML = `
                 <option value="">Select Biller</option>
                 ${uniqueBillers.map(biller => `
                     <option value="${biller.id}" 
                             data-min="${biller.minimum_amount}"
                             data-max="${biller.maximum_amount || ''}"
-                    >${biller.name}</option>
+                    >${escapeHtml(biller.name)}</option>
                 `).join('')}
             `;
             select.disabled = false;
@@ -743,7 +745,7 @@ async function handleBillPayment(event) {
         const data = await response.json();
         if (data.status === 'success') {
             hidePayBillModal();
-            document.getElementById('message').innerHTML = 'Bill payment successful!';
+            document.getElementById('message').textContent = 'Bill payment successful!';
             document.getElementById('message').style.color = 'green';
             await loadPaymentHistory();
             
@@ -757,11 +759,11 @@ async function handleBillPayment(event) {
                 balanceElement.textContent = (currentBalance - jsonData.amount).toFixed(2);
             }
         } else {
-            document.getElementById('message').innerHTML = data.message;
+            document.getElementById('message').textContent = data.message;
             document.getElementById('message').style.color = 'red';
         }
     } catch (error) {
-        document.getElementById('message').innerHTML = 'Payment failed';
+        document.getElementById('message').textContent = 'Payment failed';
         document.getElementById('message').style.color = 'red';
     }
 }
@@ -783,22 +785,22 @@ async function loadPaymentHistory() {
                 return;
             }
 
-            // Vulnerability: XSS possible in payment details
+            // T37: Escape all server-sourced values
             container.innerHTML = data.payments.map(payment => `
                 <div class="payment-item">
                     <div class="payment-header">
                         <div class="payment-amount">$${payment.amount}</div>
-                        <div class="payment-status">${payment.status}</div>
+                        <div class="payment-status">${escapeHtml(payment.status)}</div>
                     </div>
                     <div class="payment-details">
-                        <div>Biller: ${payment.biller_name}</div>
-                        <div>Category: ${payment.category_name}</div>
-                        <div>Payment Method: ${payment.payment_method}
-                            ${payment.card_number ? ` (Card ending in ${payment.card_number.slice(-4)})` : ''}
+                        <div>Biller: ${escapeHtml(payment.biller_name)}</div>
+                        <div>Category: ${escapeHtml(payment.category_name)}</div>
+                        <div>Payment Method: ${escapeHtml(payment.payment_method)}
+                            ${payment.card_number ? ` (Card ending in ${escapeHtml(payment.card_number.slice(-4))})` : ''}
                         </div>
-                        <div>Reference: ${payment.reference}</div>
-                        <div>Date: ${new Date(payment.created_at).toLocaleString()}</div>
-                        ${payment.description ? `<div>Description: ${payment.description}</div>` : ''}
+                        <div>Reference: ${escapeHtml(payment.reference)}</div>
+                        <div>Date: ${escapeHtml(new Date(payment.created_at).toLocaleString())}</div>
+                        ${payment.description ? `<div>Description: ${escapeHtml(payment.description)}</div>` : ''}
                     </div>
                 </div>
             `).join('');
