@@ -12,6 +12,23 @@ bd close <id>         # Complete work
 bd dolt push          # Push beads data to remote
 ```
 
+## Agent Identity (Parallel Agents)
+
+When running multiple agents on the same machine, each agent **must** work in its own worktree with a distinct identity. The operator provisions these before starting agents:
+
+```bash
+# From the main repo root:
+scripts/spawn-agent.sh cursor-a            # creates ../vuln-bank-cursor-a
+scripts/spawn-agent.sh claude-1            # creates ../vuln-bank-claude-1
+
+# When done:
+scripts/teardown-agent.sh cursor-a
+```
+
+Each agent's worktree has `git config --worktree user.name` set to the agent name. Since `bd` falls back to `git user.name`, all `bd` commands automatically use the correct identity. No `BD_ACTOR` env var needed.
+
+**Session start check:** Every agent must verify `.bd-agent-identity` exists in its working directory before doing any work. If missing, tell the operator to run `spawn-agent.sh`.
+
 ## Non-Interactive Shell Commands
 
 **ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.
@@ -94,12 +111,13 @@ bd close bd-42 --reason "Completed" --json
 
 ### Workflow for AI Agents
 
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task atomically**: `bd update <id> --claim`
-3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue:
+1. **Verify identity**: Confirm `.bd-agent-identity` exists and `git config get user.name` matches
+2. **Check ready work**: `bd ready` shows unblocked issues
+3. **Claim your task atomically**: `bd update <id> --claim`
+4. **Work on it**: Implement, test, document
+5. **Discover new work?** Create linked issue:
    - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
+6. **Complete**: `bd close <id> --reason "Done"`
 
 ### Auto-Sync
 
