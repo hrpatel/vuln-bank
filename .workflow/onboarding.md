@@ -90,7 +90,7 @@ You need **Atlassian CLI (`acli`)**.
 1. **Clone the repo** (if you haven’t): `git clone <repo-url>` and `cd` into it.
 2. **Install required tools:** Git and GitHub CLI (see above). Run `gh auth login` if needed.
 3. **Check the issue tracker:** Read [.workflow/issue-tracker.md](issue-tracker.md). If the project uses Beads or Jira, install and verify those tools.
-4. **Running two agents on one machine?** Add a **git worktree** or second clone (see *Parallel agents* below).
+4. **Running two agents on one machine?** Add a **git worktree** (see *Parallel agents* below).
 5. **Confirm:** `git --version`, `gh auth status`, and (if applicable) `bd --version` or `acli --version`.
 
 After this, follow [.workflow/START HERE.md](START%20HERE.md) and the coordination guide linked in issue-tracker.md. For one-time project setup (e.g. choosing the tracker), see [.workflow/bootstrap.md](bootstrap.md).
@@ -99,54 +99,37 @@ After this, follow [.workflow/START HERE.md](START%20HERE.md) and the coordinati
 
 ## Parallel agents on one machine (filesystem isolation)
 
-**Problem:** Two AI agents (e.g. Cursor + Claude Code) pointed at the **same directory** will fight over the working tree: each checks out its own branch and overwrites the same files, causing lost work and merge chaos.
+**Problem:** Two AI agents (e.g. Cursor + Claude Code) using the **same directory** will fight over the working tree when each checks out a different branch.
 
-**Fix — pick one:**
+**Fix: git worktree.** Keep one main checkout; add a **sibling directory** per extra agent (same repo, separate working tree).
 
-### Option 1: Git worktrees (recommended)
-
-One clone stays the “primary” repo; additional agents use a **sibling directory** that shares `.git` but has its own checkout.
-
-From your primary clone (e.g. `~/code/vuln-bank`):
+From your main repo (e.g. `~/code/vuln-bank`):
 
 ```bash
 cd ~/code/vuln-bank
 git fetch origin
-# New branch for the second agent (create if needed):
+# New branch for the second agent:
 git worktree add ../vuln-bank-claude -b claude/01-my-task
 # Or attach to an existing branch:
 # git worktree add ../vuln-bank-claude claude/01-my-task
 ```
 
-Point the **second** agent’s workspace at `~/code/vuln-bank-claude`. It edits and commits there; the first agent stays in `~/code/vuln-bank`. Push from either tree with `git push -u origin <branch>`.
-
-List / remove worktrees:
+Point the second agent at `~/code/vuln-bank-claude`. The first agent stays in `~/code/vuln-bank`. Push from either path: `git push -u origin <branch>`.
 
 ```bash
 git worktree list
-git worktree remove ../vuln-bank-claude   # after branch is merged or abandoned
+git worktree remove ../vuln-bank-claude   # after merge or abandon
 ```
 
-### Option 2: Second full clone
+### Beads with multiple worktrees
 
-```bash
-git clone <repo-url> vuln-bank-agent2
-cd vuln-bank-agent2 && git checkout claude/01-my-task
-```
+Beads (`.beads/`) is tied to where `bd init` ran. **Practical pattern:**
 
-More disk use; mentally simple. Same **Beads** guidance as below.
+1. Use **one** directory for Beads (usually the **main** worktree).
+2. Run **`bd ready`**, **`bd update <id> --claim`**, **`bd close`** only from that directory (or use a shared Dolt server per [Beads docs](https://steveyegge.github.io/beads/)).
+3. Edit code in the worktree that has your feature branch.
 
-### Beads with multiple directories
-
-Beads/Dolt data (`.beads/`) is tied to the directory where `bd init` ran. **Do not** run unrelated `bd` commands from two different trees unless both use the **same** Beads database (e.g. shared Dolt server — see [Beads docs](https://steveyegge.github.io/beads/)).
-
-**Practical pattern:**
-
-1. Designate **one** directory as the Beads source of truth (usually the primary clone).
-2. Run **`bd ready`**, **`bd update <id> --claim`**, **`bd close`** only from that directory (or ensure all worktrees share the same Dolt backend).
-3. Implement code in whichever worktree/clone holds your feature branch.
-
-If each tree has its own isolated `.beads`, claims in one tree are invisible to the other — **avoid** that for multi-agent coordination.
+Do not rely on separate `.beads` per worktree for coordination—claims would not be shared.
 
 See [.workflow/beads-coordination.md](beads-coordination.md) — *Parallel agents and directories*.
 
