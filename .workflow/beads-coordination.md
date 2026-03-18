@@ -153,15 +153,24 @@ bd show --current      # Last touched / in-progress issue
 
 ## Solving Hard Problems
 
-### Parallel agents and directories (B)
+### Parallel agents and directories
 
-Two agents in the **same directory** overwrite each other’s checkouts. **Use a [git worktree](https://git-scm.com/docs/git-worktree) per agent** (sibling folder, same repo). See [.workflow/onboarding.md](onboarding.md).
+Two agents in the **same directory** overwrite each other's checkouts and share the same `git user.name`, making `bd` claims indistinguishable. **Use `scripts/spawn-agent.sh`** to create an isolated worktree per agent (see [.workflow/onboarding.md](onboarding.md)).
 
-**Beads:** Run `bd` from **one** main worktree (or a shared Dolt server) so claims are visible to everyone; implement in your task’s worktree.
+Each agent's worktree has a distinct `git config --worktree user.name`, so `bd` automatically uses the correct identity for claims, updates, and closes. No `BD_ACTOR` env var is needed.
 
 ### Multi-Agent Claiming
 
-`bd update <id> --claim` is atomic. If two agents claim the same issue, one will fail—that agent must pick another task, not start coding anyway. **Never** proceed with implementation on a task whose claim failed. Re-run `bd ready --unassigned` after a failed claim.
+`bd update <id> --claim` is atomic. The claim records the agent's `git user.name` as the assignee. When agents have distinct identities (set by `spawn-agent.sh`), a second agent's claim on the same task will fail because the assignee doesn't match.
+
+If a claim fails, the agent must pick another task — never proceed with implementation. Re-run `bd ready --unassigned` after a failed claim.
+
+**Defensive check:** After claiming, verify the assignee matches your identity:
+
+```bash
+bd show <id> --json | jq -r '.assignee'
+# Should match: git config get user.name
+```
 
 ### Staleness
 
