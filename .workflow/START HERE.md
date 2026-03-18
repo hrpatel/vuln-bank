@@ -26,6 +26,7 @@ A few minutes of research before implementing saves multiple iteration cycles af
 
 ## How to Start a Session
 
+0. **Verify agent identity.** Check that `.bd-agent-identity` exists in the current working directory. If found, read the agent name and verify `git config get user.name` returns the same value. If **not** found, stop and tell the operator: _"This workspace was not created with `spawn-agent.sh`. Run `scripts/spawn-agent.sh <name>` from the main repo, then open that folder."_ Do not proceed without a valid agent identity.
 1. Read your entry point — `CLAUDE.md` for CLI agents (e.g. Claude Code), `.cursorrules` for Cursor — it brought you here.
 2. Check `STATUS.md` for current project state.
 3. **Read `.workflow/issue-tracker.md`** and the **coordination guide** it links to. **Beads:** run `bd ready --unassigned`, choose one task, run `bd update <id> --claim`. **Do not proceed until claim succeeds.** If it fails, choose a different task. Only after a successful claim may you create a branch or edit files for that work item.
@@ -46,7 +47,7 @@ Your coordination guide (see `.workflow/issue-tracker.md`) describes how depende
 
 **How to assess parallel safety:** Two tasks conflict if they modify the same file. Check in-progress work (via the coordination guide) before starting yours.
 
-**Parallel agents on one machine:** Use a **git worktree** per agent so checkouts do not collide (see [.workflow/onboarding.md](onboarding.md)).
+**Parallel agents on one machine:** Run `scripts/spawn-agent.sh <name>` from the main repo to create an isolated worktree with a distinct agent identity. Each agent gets its own directory, branch, and `bd` identity. See [.workflow/onboarding.md](onboarding.md).
 
 ## Creating New Tasks
 
