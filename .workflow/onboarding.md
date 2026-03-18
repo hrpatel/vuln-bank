@@ -90,9 +90,48 @@ You need **Atlassian CLI (`acli`)**.
 1. **Clone the repo** (if you haven’t): `git clone <repo-url>` and `cd` into it.
 2. **Install required tools:** Git and GitHub CLI (see above). Run `gh auth login` if needed.
 3. **Check the issue tracker:** Read [.workflow/issue-tracker.md](issue-tracker.md). If the project uses Beads or Jira, install and verify those tools.
-4. **Confirm:** `git --version`, `gh auth status`, and (if applicable) `bd --version` or `acli --version`.
+4. **Running two agents on one machine?** Add a **git worktree** (see *Parallel agents* below).
+5. **Confirm:** `git --version`, `gh auth status`, and (if applicable) `bd --version` or `acli --version`.
 
 After this, follow [.workflow/START HERE.md](START%20HERE.md) and the coordination guide linked in issue-tracker.md. For one-time project setup (e.g. choosing the tracker), see [.workflow/bootstrap.md](bootstrap.md).
+
+---
+
+## Parallel agents on one machine (filesystem isolation)
+
+**Problem:** Two AI agents (e.g. Cursor + Claude Code) using the **same directory** will fight over the working tree when each checks out a different branch.
+
+**Fix: git worktree.** Keep one main checkout; add a **sibling directory** per extra agent (same repo, separate working tree).
+
+From your main repo (e.g. `~/code/vuln-bank`):
+
+```bash
+cd ~/code/vuln-bank
+git fetch origin
+# New branch for the second agent:
+git worktree add ../vuln-bank-claude -b claude/01-my-task
+# Or attach to an existing branch:
+# git worktree add ../vuln-bank-claude claude/01-my-task
+```
+
+Point the second agent at `~/code/vuln-bank-claude`. The first agent stays in `~/code/vuln-bank`. Push from either path: `git push -u origin <branch>`.
+
+```bash
+git worktree list
+git worktree remove ../vuln-bank-claude   # after merge or abandon
+```
+
+### Beads with multiple worktrees
+
+Beads (`.beads/`) is tied to where `bd init` ran. **Practical pattern:**
+
+1. Use **one** directory for Beads (usually the **main** worktree).
+2. Run **`bd ready`**, **`bd update <id> --claim`**, **`bd close`** only from that directory (or use a shared Dolt server per [Beads docs](https://steveyegge.github.io/beads/)).
+3. Edit code in the worktree that has your feature branch.
+
+Do not rely on separate `.beads` per worktree for coordination—claims would not be shared.
+
+See [.workflow/beads-coordination.md](beads-coordination.md) — *Parallel agents and directories*.
 
 ---
 

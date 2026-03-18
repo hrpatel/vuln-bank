@@ -23,6 +23,8 @@ Set these for your agent (example values shown for Claude Code):
 
 **Beads — claim first:** Run `bd update <id> --claim` and succeed *before* creating a branch or editing files for that task. If claim fails, pick another task.
 
+**Parallel agents:** Use a **git worktree** per agent on the same machine (see `.workflow/onboarding.md`).
+
 Work on a feature branch only; never push to main.
 
 ## Workflow Reference

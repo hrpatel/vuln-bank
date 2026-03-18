@@ -46,6 +46,8 @@ Your coordination guide (see `.workflow/issue-tracker.md`) describes how depende
 
 **How to assess parallel safety:** Two tasks conflict if they modify the same file. Check in-progress work (via the coordination guide) before starting yours.
 
+**Parallel agents on one machine:** Use a **git worktree** per agent so checkouts do not collide (see [.workflow/onboarding.md](onboarding.md)).
+
 ## Creating New Tasks
 
 Follow the coordination guide linked in `.workflow/issue-tracker.md` to create tasks. In general: include a clear title, spec, acceptance criteria, and "Files to edit"; set status/labels so others can see it's available or blocked; link dependencies if the tracker supports it.
@@ -106,7 +108,7 @@ This can happen at any natural breakpoint — no need to wait for the other mode
 | **Tips & Lessons** | `.workflow/` | When you hit a technical snag |
 | **decisions.md** | Repo root | When you need project history; log decisions using the structured format |
 | **.metrics/** | `.metrics/` | When updating tracking data; before every push (include in commit). See `.metrics/README.md` and field definitions in the metrics files. |
-| **Onboarding** | `.workflow/onboarding.md` | First-time local setup (git, gh, optional bd/acli) — macOS & WSL |
+| **Onboarding** | `.workflow/onboarding.md` | First-time setup; includes **parallel agents** (git worktree) |
 | **Issue tracker** | `.workflow/issue-tracker.md` | Which tracker this project uses; read first, then follow its coordination guide |
 | **Bootstrap** | `.workflow/bootstrap.md` | One-time setup when choosing or changing the issue tracker |
 | **GitHub Coordination** | `.workflow/github-issues-coordination.md` | If tracker is GitHub Issues |

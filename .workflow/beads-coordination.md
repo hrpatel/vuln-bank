@@ -153,6 +153,12 @@ bd show --current      # Last touched / in-progress issue
 
 ## Solving Hard Problems
 
+### Parallel agents and directories (B)
+
+Two agents in the **same directory** overwrite each other’s checkouts. **Use a [git worktree](https://git-scm.com/docs/git-worktree) per agent** (sibling folder, same repo). See [.workflow/onboarding.md](onboarding.md).
+
+**Beads:** Run `bd` from **one** main worktree (or a shared Dolt server) so claims are visible to everyone; implement in your task’s worktree.
+
 ### Multi-Agent Claiming
 
 `bd update <id> --claim` is atomic. If two agents claim the same issue, one will fail—that agent must pick another task, not start coding anyway. **Never** proceed with implementation on a task whose claim failed. Re-run `bd ready --unassigned` after a failed claim.
