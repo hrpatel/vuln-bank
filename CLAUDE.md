@@ -21,6 +21,8 @@ Set these for your agent (example values shown for Claude Code):
 3. Read `.workflow/issue-tracker.md` to see which issue tracker this project uses, then follow the coordination guide linked there to find and claim work (and to avoid file conflicts with the other model’s in-progress work)
 4. If no work is available, ask your operator what to work on
 
+**Beads — claim first:** Run `bd update <id> --claim` and succeed *before* creating a branch or editing files for that task. If claim fails, pick another task.
+
 Work on a feature branch only; never push to main.
 
 ## Workflow Reference

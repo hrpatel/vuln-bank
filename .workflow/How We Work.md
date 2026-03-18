@@ -35,8 +35,8 @@ One-time setup (e.g. when creating or changing the choice) is in `.workflow/boot
 
 1. Read `.workflow/issue-tracker.md` to see which tracker this project uses.
 2. Open the coordination guide linked there.
-3. Use that guide to find available work, check for in-progress work from the other model (and its "Files to edit"), and claim a task without file overlap.
-4. Create or switch to a feature branch (see Branch Naming) before making changes.
+3. Use that guide to find available work and check for in-progress work from the other model (and its "Files to edit"). **Beads:** `bd update <id> --claim` must **succeed** before any branch or file edits for that task.
+4. Create or switch to a feature branch (see Branch Naming) only **after** a successful claim.
 
 ### Branch Naming
 
@@ -61,8 +61,8 @@ If a merge conflict arises in a PR, the model that created the PR resolves it.
 1. Operator describes what they want
 2. AI model asks clarifying questions if needed
 3. AI model checks the issue tracker (see `.workflow/issue-tracker.md`) for conflicts
-4. AI model creates a task (if one doesn't exist) and claims it per the coordination guide
-5. AI model works on a feature branch
+4. AI model creates a task (if one doesn't exist) and **successfully** claims it per the coordination guide (Beads: `bd update <id> --claim` before any branch or edits)
+5. AI model works on a feature branch (only after claim succeeds)
 6. AI model creates a PR
 7. **Human merges** the PR
 8. When the PR is merged, the tracker issue is closed or completed per the coordination guide. The person who merges unblocks downstream work and updates STATUS.md / tracking docs as needed.
