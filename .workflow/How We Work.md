@@ -46,6 +46,10 @@ Use a consistent pattern so it's clear who's working on what:
 
 Example: `claude/03-add-xss-scenario`, `cursor/04-update-auth-tests`
 
+### Parallel agents on one machine
+
+Each agent should use its **own git worktree or clone** (see [.workflow/onboarding.md](onboarding.md)). Two agents in one directory will corrupt each other’s checkouts. Beads claims should run against **one** shared Beads database (primary clone or shared Dolt).
+
 ### Handling Conflicts
 
 If both models accidentally start tasks that touch the same files:

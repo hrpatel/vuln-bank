@@ -153,6 +153,17 @@ bd show --current      # Last touched / in-progress issue
 
 ## Solving Hard Problems
 
+### Parallel agents and directories (B)
+
+Two agents editing the **same folder** but different git branches still **overwrite each other’s files** on checkout. **Use a separate [git worktree](https://git-scm.com/docs/git-worktree) or a second clone per agent** so each has its own working tree. See [.workflow/onboarding.md](onboarding.md) — *Parallel agents on one machine*.
+
+**Beads:** Claims are only useful if every agent reads/writes the **same** Beads database. Either:
+
+- Run all `bd` commands from **one** designated clone (primary), and do code edits in agent-specific worktrees; or  
+- Use a **shared Dolt server** (or Beads team setup) so every directory sees the same task graph.
+
+Do **not** run `bd init` independently in two clones unless you intend two disconnected backlogs.
+
 ### Multi-Agent Claiming
 
 `bd update <id> --claim` is atomic. If two agents claim the same issue, one will fail—that agent must pick another task, not start coding anyway. **Never** proceed with implementation on a task whose claim failed. Re-run `bd ready --unassigned` after a failed claim.

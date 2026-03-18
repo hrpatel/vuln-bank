@@ -90,9 +90,65 @@ You need **Atlassian CLI (`acli`)**.
 1. **Clone the repo** (if you haven’t): `git clone <repo-url>` and `cd` into it.
 2. **Install required tools:** Git and GitHub CLI (see above). Run `gh auth login` if needed.
 3. **Check the issue tracker:** Read [.workflow/issue-tracker.md](issue-tracker.md). If the project uses Beads or Jira, install and verify those tools.
-4. **Confirm:** `git --version`, `gh auth status`, and (if applicable) `bd --version` or `acli --version`.
+4. **Running two agents on one machine?** Add a **git worktree** or second clone (see *Parallel agents* below).
+5. **Confirm:** `git --version`, `gh auth status`, and (if applicable) `bd --version` or `acli --version`.
 
 After this, follow [.workflow/START HERE.md](START%20HERE.md) and the coordination guide linked in issue-tracker.md. For one-time project setup (e.g. choosing the tracker), see [.workflow/bootstrap.md](bootstrap.md).
+
+---
+
+## Parallel agents on one machine (filesystem isolation)
+
+**Problem:** Two AI agents (e.g. Cursor + Claude Code) pointed at the **same directory** will fight over the working tree: each checks out its own branch and overwrites the same files, causing lost work and merge chaos.
+
+**Fix — pick one:**
+
+### Option 1: Git worktrees (recommended)
+
+One clone stays the “primary” repo; additional agents use a **sibling directory** that shares `.git` but has its own checkout.
+
+From your primary clone (e.g. `~/code/vuln-bank`):
+
+```bash
+cd ~/code/vuln-bank
+git fetch origin
+# New branch for the second agent (create if needed):
+git worktree add ../vuln-bank-claude -b claude/01-my-task
+# Or attach to an existing branch:
+# git worktree add ../vuln-bank-claude claude/01-my-task
+```
+
+Point the **second** agent’s workspace at `~/code/vuln-bank-claude`. It edits and commits there; the first agent stays in `~/code/vuln-bank`. Push from either tree with `git push -u origin <branch>`.
+
+List / remove worktrees:
+
+```bash
+git worktree list
+git worktree remove ../vuln-bank-claude   # after branch is merged or abandoned
+```
+
+### Option 2: Second full clone
+
+```bash
+git clone <repo-url> vuln-bank-agent2
+cd vuln-bank-agent2 && git checkout claude/01-my-task
+```
+
+More disk use; mentally simple. Same **Beads** guidance as below.
+
+### Beads with multiple directories
+
+Beads/Dolt data (`.beads/`) is tied to the directory where `bd init` ran. **Do not** run unrelated `bd` commands from two different trees unless both use the **same** Beads database (e.g. shared Dolt server — see [Beads docs](https://steveyegge.github.io/beads/)).
+
+**Practical pattern:**
+
+1. Designate **one** directory as the Beads source of truth (usually the primary clone).
+2. Run **`bd ready`**, **`bd update <id> --claim`**, **`bd close`** only from that directory (or ensure all worktrees share the same Dolt backend).
+3. Implement code in whichever worktree/clone holds your feature branch.
+
+If each tree has its own isolated `.beads`, claims in one tree are invisible to the other — **avoid** that for multi-agent coordination.
+
+See [.workflow/beads-coordination.md](beads-coordination.md) — *Parallel agents and directories*.
 
 ---
 
