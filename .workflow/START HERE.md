@@ -11,7 +11,7 @@
 3. **Tasks are sequential unless marked parallel-safe.** Parallel tasks touching the same files can revert each other.
 4. **Ask before acting on anything destructive or ambiguous.** When in doubt, ask.
 5. **Check for conflicts before starting.** Use the coordination guide (see `.workflow/issue-tracker.md`) to see in-progress work and verify no task from the other model touches your files.
-6. **Claim your work.** Claim a task in the project’s issue tracker when you start (via the coordination guide). Create a PR when you finish; the tracker issue is closed or completed per the guide (e.g. when the PR is merged).
+6. **Claim before you touch the task.** For **Beads**, you must run `bd update <id> --claim` and have it **succeed** before you create a feature branch or edit any file for that task. If claim fails (already claimed), pick another task from `bd ready --unassigned`. Same discipline for other trackers: claim must precede implementation. Create a PR when you finish; close the tracker item per the coordination guide.
 
 ## Before You Build
 
@@ -27,10 +27,10 @@ A few minutes of research before implementing saves multiple iteration cycles af
 ## How to Start a Session
 
 1. Read your entry point — `CLAUDE.md` for CLI agents (e.g. Claude Code), `.cursorrules` for Cursor — it brought you here.
-2. Create or checkout a feature branch (e.g. `cursor/XX-slug` or `claude/XX-slug` per `.workflow/How We Work.md`). Do not commit or push to `main`.
-3. Check `STATUS.md` for current project state.
-4. **Read `.workflow/issue-tracker.md`** to see which issue tracker this project uses. Follow the **coordination guide linked there** to find available work and claim a task (and to check for in-progress work from the other model).
-5. If no work is available, ask your operator what to do next.
+2. Check `STATUS.md` for current project state.
+3. **Read `.workflow/issue-tracker.md`** and the **coordination guide** it links to. **Beads:** run `bd ready --unassigned`, choose one task, run `bd update <id> --claim`. **Do not proceed until claim succeeds.** If it fails, choose a different task. Only after a successful claim may you create a branch or edit files for that work item.
+4. Create or checkout a feature branch (e.g. `cursor/XX-slug` per `.workflow/How We Work.md`). Do not commit or push to `main`.
+5. If no unclaimed work is available, ask your operator what to do next.
 
 ## Task Workflow
 

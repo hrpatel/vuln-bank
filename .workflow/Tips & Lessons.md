@@ -18,7 +18,7 @@ A living document capturing what we've learned — from both AI models and both 
 - **GitHub Issues are the coordination layer.** Before starting any work, check `gh issue list --repo hrpatel/vuln-bank` for in-progress work. If another model has an issue that touches the same files, pick something else.
 - **Branch naming signals ownership.** Use `claude/` or `cursor/` prefixes so it's obvious who's working where.
 - **File-level granularity is enough.** You don't need line-level locking — if two tasks touch the same file, they conflict. Keep tasks scoped to avoid this.
-- **Claim your issue before you start coding.** The gap between deciding to work on something and claiming the issue is where collisions happen.
+- **Claim before branch or edits (Beads: `bd update <id> --claim`).** The gap between picking a task and claiming it is where two agents duplicate work. Claim must succeed first; if it fails, pick another task—do not implement anyway.
 
 ## AI Code Generation
 

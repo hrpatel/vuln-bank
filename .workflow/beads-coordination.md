@@ -61,11 +61,16 @@ Use 'bd' for task tracking. See .workflow/beads-coordination.md.
 
 ## Workflow
 
+### Claim before branch or edits (mandatory)
+
+**Order for every implementation session:** (1) `bd ready --unassigned` (or equivalent) → (2) pick **one** task ID → (3) `bd update <id> --claim` → (4) **only if claim succeeds**, create your git feature branch and edit files.
+
+If claim fails, another agent holds that task—pick a different ID from `bd ready --unassigned`. **Do not** create a branch or modify the repo for a Beads task until your claim succeeds. Skipping this step causes duplicate work when multiple agents run in parallel.
+
 ### Starting a Session
 
-1. See ready work (no open blockers): `bd ready`
-2. Optionally filter by assignee, label, type, or limit: `bd ready --unassigned -n 5`
-3. For JSON (scripts/agents): `bd ready --json`
+1. See ready unclaimed work: `bd ready --unassigned` (add `-n 5` to cap the list). For JSON: `bd ready --unassigned --json`
+2. Optionally also run `bd ready` to see your own in-progress items.
 
 ### Claiming a Task
 
@@ -74,7 +79,7 @@ Use 'bd' for task tracking. See .workflow/beads-coordination.md.
 bd update <id> --claim
 ```
 
-Fails if the issue is already claimed. Use `BD_ACTOR` or `--actor` to set the assignee name (defaults to `git user.name` or `$USER`).
+Fails if the issue is already claimed. Use `BD_ACTOR` or `--actor` to set the assignee name (defaults to `git user.name` or `$USER`). **Claim must succeed before any git branch or file changes for that task.**
 
 ### Creating a Task
 
@@ -150,7 +155,7 @@ bd show --current      # Last touched / in-progress issue
 
 ### Multi-Agent Claiming
 
-`bd update <id> --claim` is atomic. If two agents claim the same issue, one will fail. Before claiming, re-run `bd ready` and pick an issue that is still unassigned.
+`bd update <id> --claim` is atomic. If two agents claim the same issue, one will fail—that agent must pick another task, not start coding anyway. **Never** proceed with implementation on a task whose claim failed. Re-run `bd ready --unassigned` after a failed claim.
 
 ### Staleness
 
