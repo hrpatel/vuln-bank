@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
+from flask_wtf.csrf import CSRFProtect
 from datetime import datetime, timedelta
 import random
 import secrets
@@ -58,6 +59,9 @@ def set_anti_clickjacking_headers(response):
 
 # T76: Use env for secret key; no hardcoded default in production
 app.secret_key = os.getenv('FLASK_SECRET_KEY') or os.getenv('SECRET_KEY') or 'secret123'
+
+# T29: CSRF protection via Flask-WTF
+csrf = CSRFProtect(app)
 
 # Rate limiting configuration
 RATE_LIMIT_WINDOW = 3 * 60 * 60  # 3 hours in seconds
