@@ -1,3 +1,9 @@
+// T29: Return CSRF token from the meta tag injected by Flask-WTF
+function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.content : '';
+}
+
 // Set current date
 document.addEventListener('DOMContentLoaded', function() {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -101,7 +107,8 @@ async function handleTransfer(event) {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
             },
             body: JSON.stringify(jsonData)
         });
@@ -140,7 +147,8 @@ async function handleLoanRequest(event) {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
             },
             body: JSON.stringify(jsonData)
         });
@@ -203,7 +211,8 @@ async function handleProfileUpload(event) {
         const response = await fetch('/upload_profile_picture', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),
+                'X-CSRFToken': getCsrfToken()
             },
             body: formData
         });
@@ -236,7 +245,8 @@ async function handleProfileUrlImport() {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
             },
             body: JSON.stringify({ image_url: imageUrl })
         });
@@ -430,7 +440,8 @@ async function handleCreateCard(event) {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
             },
             body: JSON.stringify(jsonData)
         });
@@ -457,7 +468,8 @@ async function toggleCardFreeze(cardId) {
         const response = await fetch(`/api/virtual-cards/${cardId}/toggle-freeze`, {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),
+                'X-CSRFToken': getCsrfToken()
             }
         });
 
@@ -560,7 +572,8 @@ async function handleCardUpdate(event, cardId) {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
             },
             body: JSON.stringify(jsonData)
         });
@@ -728,7 +741,8 @@ async function handleBillPayment(event) {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('jwt_token'),
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
             },
             body: JSON.stringify(jsonData)
         });
@@ -969,12 +983,14 @@ async function sendToAI(message) {
             endpoint = '/api/ai/chat';
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'X-CSRFToken': getCsrfToken()
             };
         } else {
             endpoint = '/api/ai/chat/anonymous';
             headers = {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
             };
         }
         
