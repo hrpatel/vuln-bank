@@ -7,3 +7,6 @@
 
 # Agent identity marker (per-worktree, not committed)
 .bd-agent-identity
+
+# Claude Code worktrees (local agent workspaces)
+.claude/
