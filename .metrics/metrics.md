@@ -7,7 +7,7 @@
 | **Project Name** | Vuln Bank |
 | **Repository** | https://github.com/hrpatel/vuln-bank |
 | **Tracking Since** | March 6, 2026 |
-| **Last Updated** | March 10, 2026 (Session 9) |
+| **Last Updated** | March 27, 2026 (Session 12) |
 
 
 > **This is the merged master.** Do not edit directly. Each model writes to `metrics-claude.md` or `metrics-cursor.md` (in this directory). Claude Code merges both into this file and syncs to Meta Tracker.
@@ -25,6 +25,10 @@
 | 8 | Mar 10 | Claude Code | 159 | 41 | +118 | README.md, app.py, auth.py, Dockerfile, openapi.json, index.html |
 | 8 | Mar 10 | Cursor | ~46 | 0 | +46 | STATUS.md, docs/sdelements-profile-and-assumptions.md |
 | 9 | Mar 10 | Claude Code | 24 | 18 | +6 | app.py, How We Work.md, Dockerfile, docker-compose.yml, README.md |
+| 10 | Mar 12 | Cursor | ~9 | 0 | +9 | app.py (T66 headers, T42 comment), STATUS.md |
+| 10 | Mar 26 | Claude Code | ~60 | ~10 | +50 | requirements.txt, app.py, static/dashboard.js, templates/*.html |
+| 11 | Mar 27 | Claude Code | 246 | 296 | -50 | AGENTS.md, HUMAN.md (new), CLAUDE.md (deleted), .workflow/START HERE.md (deleted), STATUS.md |
+| 12 | Mar 27 | Claude Code | 0 | 321 | -321 | .archive/* (7 files deleted), STATUS.md, .metrics/ |
 
 ---
 
@@ -41,6 +45,10 @@
 | 8 | Mar 10 | 2 | 2 | 3 | Claude Code | PR #53: Fix 4 bugs. PR #56: Session close-out workflow |
 | 8 | Mar 10 | 1 | 1 | 1 | Cursor | PR #59: SDElements profile + assumptions doc |
 | 9 | Mar 10 | 2 | 2 | 2 | Claude Code | PR #102: Bare exceptions + stale refs. PR #104: Docker modernization |
+| 10 | Mar 12 | 1 | 1 | 2 | Cursor | PR #108: T66 clickjacking headers + T42 verification |
+| 10 | Mar 26 | 1 | 1 | 1 | Claude Code | PR #120: CSRF protection (T29) |
+| 11 | Mar 27 | 1 | 1 | 2 | Claude Code | PR #123: Docs consolidation (AGENTS.md + HUMAN.md) |
+| 12 | Mar 27 | 1 | 0 | 1 | Claude Code | PR #125: Remove .archive/ and orphaned worktree |
 
 ---
 
@@ -81,6 +89,10 @@
 | 8 | Mar 10 | -- | 3 | 1 | Fixed 4 bugs, session close-out workflow | Build | collaborative | michael | Bug | Claude Code |
 | 8 | Mar 10 | -- | 1 | 0 | SDElements Django profile, survey bias, profile doc | Spec | ai | coworker | Planning | Cursor |
 | 9 | Mar 10 | ~30 min | 2 | 1 | Bare exceptions, stale refs, Docker modernization | Build | ai | michael | Bug, Tooling | Claude Code |
+| 10 | Mar 12 | -- | 1 | 0 | SDE T66 clickjacking headers, T42 template verification | Build | ai | coworker | Feature | Cursor |
+| 10 | Mar 26 | ~45 min | 1 | 0 | CSRF protection via Flask-WTF (T29) | Build | ai | hpatel | Security | Claude Code |
+| 11 | Mar 27 | ~1.5 hr | 1 | 1 | Docs consolidation: AGENTS.md + HUMAN.md | Build | collaborative | hpatel | Tooling | Claude Code |
+| 12 | Mar 27 | ~45 min | 1 | 0 | Workflow artifact audit and cleanup (.archive/ removal) | Build | collaborative | hpatel | Tooling | Claude Code |
 
 ### Field Definitions
 
@@ -111,6 +123,10 @@
 | -- | Cursor | #59 | +46 | SDElements profile + assumptions doc |
 | #37,#15 | Claude Code | #102 | +6/-6 | Bare exceptions fix, stale index refs |
 | #23,#25,#39 | Claude Code | #104 | +18/-12 | Docker modernization (Python 3.12, Compose V2, health checks) |
+| #82,#96 | Cursor | #108 | +9 | T66 clickjacking headers, T42 template selection verified |
+| T29 | Claude Code | #120 | +50/-10 | CSRF protection via Flask-WTF |
+| -- | Claude Code | #123 | +246/-296 | Docs consolidation (AGENTS.md + HUMAN.md) |
+| -- | Claude Code | #125 | -321 | Removed .archive/ (superseded workflow docs) |
 
 ---
 

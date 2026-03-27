@@ -4,7 +4,7 @@
 **Repo:** https://github.com/hrpatel/vuln-bank
 **Live site:** N/A (runs locally via Docker)
 **Current phase:** Build
-**Current state:** Agent docs consolidated — AGENTS.md is the single self-contained agent entrypoint; HUMAN.md added for operator prompts. CLAUDE.md and .workflow/START HERE.md removed.
+**Current state:** Workflow artifact cleanup — removed superseded .archive/ docs (task index and review files replaced by GitHub Issues); AGENTS.md is the single self-contained agent entrypoint.
 
 ---
 
@@ -25,6 +25,7 @@ A deliberately vulnerable banking application designed for practicing security t
 
 ## Recent Work
 
+- **Claude Code session (Mar 27):** Workflow artifact audit and cleanup (PR #125): removed .archive/ directory (task index and review files — superseded by GitHub Issues); deleted orphaned agent worktree. Filed #126 to document undocumented SDE utility scripts. No Beads tasks — operator-directed.
 - **Claude Code session (Mar 27):** Docs consolidation (PR #123): rewrote AGENTS.md as single self-contained agent entrypoint; created HUMAN.md with operator prompts; deleted CLAUDE.md and .workflow/START HERE.md. No Beads tasks — operator-directed.
 - **Claude Code session (Mar 26):** CSRF protection (T29 / vuln-bank-1zj.3): Flask-WTF CSRFProtect initialized; csrf_token() meta tag added to all templates; X-CSRFToken header added to all state-changing fetch() calls. PR merged.
 - **Cursor session (Mar 13):** Beads + Jira dual-tracker: set Beads as primary tracker; updated issue-tracker, bootstrap, beads-coordination, onboarding, STATUS; added design spec and implementation plan. No sync implementation yet—workflow docs only.
@@ -35,7 +36,7 @@ A deliberately vulnerable banking application designed for practicing security t
 - **Session 8 (Mar 10):** Fixed 4 bugs (#21, #22, #26, #36) in PR #53. Added session close-out workflow with split metrics files (PR #56). Meta Tracker synced with all sessions including Cursor's.
 - **Session 34:** GitHub Issues POC validated — sub-issues, dependencies, labels, claiming, signaling all work. Coordination guide written (`.workflow/github-issues-coordination.md`). All workflow docs updated to reference Issues instead of task index. (PR #11)
 - **Session 33:** Designed GitHub Issues coordination system to replace file-based task index (decisions.md updated)
-- Cursor reviewed workflow and identified 9 improvement areas (see `.archive/workflow-suggestions-cursor.md`)
+- Cursor reviewed workflow and identified 9 improvement areas (feedback applied; review doc archived)
 - Repo migrated: removed fork association with Commando-X/vuln-bank, recreated as standalone
 - Aligned workflow docs with Meta Tracker data model (PR #3, 9 files)
 - Task #01 done — vuln-bank added to Meta Tracker dashboard (PR #77 in meta-tracker repo)
