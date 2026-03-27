@@ -1,10 +1,10 @@
 # Vuln Bank — Current Status
 
-**Last updated:** March 26, 2026
+**Last updated:** March 27, 2026
 **Repo:** https://github.com/hrpatel/vuln-bank
 **Live site:** N/A (runs locally via Docker)
 **Current phase:** Build
-**Current state:** CSRF protection merged (T29 / vuln-bank-1zj.3). Flask-WTF CSRFProtect active; all POST endpoints now require X-CSRFToken header.
+**Current state:** Agent docs consolidated — AGENTS.md is the single self-contained agent entrypoint; HUMAN.md added for operator prompts. CLAUDE.md and .workflow/START HERE.md removed.
 
 ---
 
@@ -25,6 +25,7 @@ A deliberately vulnerable banking application designed for practicing security t
 
 ## Recent Work
 
+- **Claude Code session (Mar 27):** Docs consolidation (PR #123): rewrote AGENTS.md as single self-contained agent entrypoint; created HUMAN.md with operator prompts; deleted CLAUDE.md and .workflow/START HERE.md. No Beads tasks — operator-directed.
 - **Claude Code session (Mar 26):** CSRF protection (T29 / vuln-bank-1zj.3): Flask-WTF CSRFProtect initialized; csrf_token() meta tag added to all templates; X-CSRFToken header added to all state-changing fetch() calls. PR merged.
 - **Cursor session (Mar 13):** Beads + Jira dual-tracker: set Beads as primary tracker; updated issue-tracker, bootstrap, beads-coordination, onboarding, STATUS; added design spec and implementation plan. No sync implementation yet—workflow docs only.
 - **Cursor session (Mar 12):** SDE T66 + T42: claimed #82 #96. Implemented T66 (X-Frame-Options DENY, CSP frame-ancestors, X-Permitted-Cross-Domain-Policies); verified T42 (no untrusted template selection). SDE status + rationale notes applied. PR #108 merged; #82, #96 closed.

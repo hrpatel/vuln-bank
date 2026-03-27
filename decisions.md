@@ -59,6 +59,15 @@ Both models should log decisions — not just the model that made them. If Curso
 - **Why this path:** Each model has its own entry point (`.cursorrules` vs `CLAUDE.md`) but shares the same workflow docs. No duplication of process rules.
 - **Outcome:** Implemented in PR #1
 
+#### Consolidate Agent Docs into AGENTS.md + HUMAN.md
+- **Type:** decision
+- **Category:** process
+- **Context:** CLAUDE.md, AGENTS.md, and .workflow/START HERE.md had significant overlap — session start steps, agent identity, and claim rules were duplicated across all three. Agents had to navigate multiple files to start working.
+- **Chosen path:** Single AGENTS.md as self-contained agent entrypoint; HUMAN.md for operator prompts. CLAUDE.md and START HERE.md deleted.
+- **Alternatives:** (1) Keep all files, deduplicate in place — still requires agents to navigate multiple files. (2) Merge into CLAUDE.md only — not model-agnostic.
+- **Why this path:** AGENTS.md is read natively by Claude Code and other agents; one file eliminates navigation overhead and drift between duplicated rules. HUMAN.md separates operator concerns cleanly.
+- **Outcome:** PR #123 (Mar 27, 2026)
+
 ---
 
 #### Repo Migration — Remove Fork Association
