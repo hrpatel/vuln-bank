@@ -1,170 +1,162 @@
-# Agent Instructions
+# Vuln Bank — Agent Instructions
 
-This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
+This is a deliberately vulnerable banking application for security testing practice. Work involves adding new vulnerability scenarios, improving existing ones, and maintaining the application.
 
-## Quick Reference
+---
 
+## Step 0 — Verify or Create Agent Identity
+
+Do this **before anything else**. Check that `.bd-agent-identity` exists in your working directory.
+
+**Found:** Read the agent name and confirm `git config get user.name` matches.
+
+**Not found — self-register:**
 ```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work atomically
-bd close <id>         # Complete work
-bd dolt push          # Push beads data to remote
+# From the repo root:
+scripts/spawn-agent.sh --auto
+# Read the "Worktree:" path from the output, then cd into it:
+cd <worktree-path>
 ```
-
-## Agent Identity (Parallel Agents)
-
-Each agent **must** work in its own worktree with a distinct identity. Agents self-register at session start:
-
-**Self-registration (automatic):** If `.bd-agent-identity` is not found in your working directory, run `scripts/spawn-agent.sh --auto` from the repo root. This generates a unique agent name, creates an isolated worktree, and sets a distinct `git user.name`. Then use the new worktree path as your working directory for all subsequent commands.
+After `cd`, confirm `.bd-agent-identity` exists. Use this worktree as your working directory for **all** subsequent commands. Do not proceed without a valid identity.
 
 **Operator-provisioned (alternative):** Operators can pre-create named workspaces before starting agents:
-
 ```bash
-# From the main repo root:
-scripts/spawn-agent.sh cursor-a            # creates ../vuln-bank-cursor-a
-scripts/spawn-agent.sh claude-1            # creates ../vuln-bank-claude-1
-
-# When done:
-scripts/teardown-agent.sh cursor-a
+scripts/spawn-agent.sh my-agent-name    # creates isolated worktree
+scripts/teardown-agent.sh my-agent-name # when done
 ```
 
-Each agent's worktree has `git config --worktree user.name` set to the agent name. Since `bd` falls back to `git user.name`, all `bd` commands automatically use the correct identity. No `BD_ACTOR` env var needed.
+Each worktree has `git config --worktree user.name` set to the agent name so `bd` claims use the correct identity automatically.
+
+---
+
+## Session Start
+
+1. Read `STATUS.md` — current project state.
+2. Find ready work: `bd ready --unassigned --json`
+3. Claim one task: `bd update <id> --claim` — **must succeed before creating a branch or editing any file.** If it fails (already claimed by another agent), pick a different task.
+4. Create a feature branch: `git checkout -b <your-prefix>/<id>-<slug>` — never commit directly to `main`.
+5. If no unclaimed work is available, ask your operator what to do next.
+
+---
+
+## Core Rules
+
+1. **Work quietly.** Don't narrate intermediate steps — surface results, blockers, and decisions only.
+2. **Humans merge.** Never merge PRs yourself — create them and flag as ready for review.
+3. **Claim before you touch.** `bd update <id> --claim` must succeed before any branch or file change for that task.
+4. **Tasks are sequential unless marked parallel-safe.** Parallel tasks touching the same files will revert each other.
+5. **Ask before acting on anything destructive or ambiguous.**
+6. **Never push to `main`.** Feature branches only.
+
+---
+
+## Before You Build
+
+Don't default to the first obvious solution. Before writing code, ask:
+
+- Is there a better pattern for this problem type?
+- Are there libraries already in the stack that handle this well?
+- What do leading products do for this same problem?
+- Is there a simpler solution with less code?
+
+A few minutes of research before implementing saves multiple iteration cycles after.
+
+---
 
 ## Non-Interactive Shell Commands
 
-**ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.
-
-Shell commands like `cp`, `mv`, and `rm` may be aliased to include `-i` (interactive) mode on some systems, causing the agent to hang indefinitely waiting for y/n input.
-
-**Use these forms instead:**
-```bash
-# Force overwrite without prompting
-cp -f source dest           # NOT: cp source dest
-mv -f source dest           # NOT: mv source dest
-rm -f file                  # NOT: rm file
-
-# For recursive operations
-rm -rf directory            # NOT: rm -r directory
-cp -rf source dest          # NOT: cp -r source dest
-```
-
-**Other commands that may prompt:**
-- `scp` - use `-o BatchMode=yes` for non-interactive
-- `ssh` - use `-o BatchMode=yes` to fail instead of prompting
-- `apt-get` - use `-y` flag
-- `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
-
-<!-- BEGIN BEADS INTEGRATION -->
-## Issue Tracking with bd (beads)
-
-**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
-
-### Why bd?
-
-- Dependency-aware: Track blockers and relationships between issues
-- Version-controlled: Built on Dolt with cell-level merge
-- Agent-optimized: JSON output, ready work detection, discovered-from links
-- Prevents duplicate tracking systems and confusion
-
-### Quick Start
-
-**Check for ready work:**
+Shell commands like `cp`, `mv`, and `rm` may be aliased to interactive (`-i`) mode on some systems, causing agents to hang indefinitely on y/n prompts. **Always use non-interactive flags:**
 
 ```bash
-bd ready --json
+cp -f source dest       # NOT: cp source dest
+mv -f source dest       # NOT: mv source dest
+rm -f file              # NOT: rm file
+rm -rf directory        # NOT: rm -r directory
+cp -rf source dest      # NOT: cp -r source dest
 ```
 
-**Create new issues:**
+Other commands that may prompt:
+- `scp` / `ssh` — add `-o BatchMode=yes`
+- `apt-get` — add `-y`
+- `brew` — set `HOMEBREW_NO_AUTO_UPDATE=1`
+
+---
+
+## Issue Tracking (Beads)
+
+Use `bd` for **all** task tracking. Do not create markdown TODO lists or use other tracking systems.
+
+### Essential Commands
 
 ```bash
-bd create "Issue title" --description="Detailed context" -t bug|feature|task -p 0-4 --json
-bd create "Issue title" --description="What this issue is about" -p 1 --deps discovered-from:bd-123 --json
+bd ready --unassigned --json          # Find available work
+bd show <id>                          # View issue details
+bd update <id> --claim                # Claim work atomically (always first)
+bd create "Title" -d "Desc" -t task|bug|feature|chore -p 0-4
+bd close <id>                         # Complete work
+bd dolt push                          # Push beads data to remote
 ```
 
-**Claim and update:**
-
-```bash
-bd update <id> --claim --json
-bd update bd-42 --priority 1 --json
-```
-
-**Complete work:**
-
-```bash
-bd close bd-42 --reason "Completed" --json
-```
-
-### Issue Types
-
-- `bug` - Something broken
-- `feature` - New functionality
-- `task` - Work item (tests, docs, refactoring)
-- `epic` - Large feature with subtasks
-- `chore` - Maintenance (dependencies, tooling)
+Append `--json` to any command for machine-readable output.
 
 ### Priorities
 
-- `0` - Critical (security, data loss, broken builds)
-- `1` - High (major features, important bugs)
-- `2` - Medium (default, nice-to-have)
-- `3` - Low (polish, optimization)
-- `4` - Backlog (future ideas)
+| Value | Meaning |
+|-------|---------|
+| `0` | Critical — security, data loss, broken builds |
+| `1` | High — major features, important bugs |
+| `2` | Medium (default) |
+| `3` | Low — polish, optimization |
+| `4` | Backlog |
 
-### Workflow for AI Agents
+### Discovered Work
 
-1. **Verify identity**: Confirm `.bd-agent-identity` exists and `git config get user.name` matches
-2. **Check ready work**: `bd ready` shows unblocked issues
-3. **Claim your task atomically**: `bd update <id> --claim`
-4. **Work on it**: Implement, test, document
-5. **Discover new work?** Create linked issue:
-   - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
-6. **Complete**: `bd close <id> --reason "Done"`
+When you find additional work while implementing, create a linked issue:
+```bash
+bd create "Found issue" -d "Details" -p 1 --deps discovered-from:<parent-id>
+```
 
-### Auto-Sync
+### Rules
 
-bd automatically syncs with git:
-
-- Exports to `.beads/issues.jsonl` after changes (5s debounce)
-- Imports from JSONL when newer (e.g., after `git pull`)
-- No manual export/import needed!
-
-### Important Rules
-
-- ✅ Use bd for ALL task tracking
-- ✅ Always use `--json` flag for programmatic use
-- ✅ Link discovered work with `discovered-from` dependencies
+- ✅ Claim before branching or editing files
+- ✅ Use `--json` for programmatic use
+- ✅ Link discovered work with `discovered-from`
 - ✅ Check `bd ready` before asking "what should I work on?"
-- ❌ Do NOT create markdown TODO lists
-- ❌ Do NOT use external issue trackers
-- ❌ Do NOT duplicate tracking systems
+- ❌ No markdown TODO lists
+- ❌ No duplicate tracking systems
 
-For more details, see README.md and docs/QUICKSTART.md.
+Full reference: `.workflow/beads-coordination.md`
 
-## Landing the Plane (Session Completion)
+---
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+## Session Completion
 
-**MANDATORY WORKFLOW:**
+Work is **not complete** until `git push` succeeds. Complete all steps before ending a session:
 
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
+1. **File issues for remaining work** — create Beads issues for anything unfinished or discovered.
+2. **Run quality gates** — tests, linters, builds (if code changed).
+3. **Update issue status** — `bd close <id>` for completed tasks; release any claimed-but-unfinished tasks back to open.
+4. **Update docs** — `STATUS.md` (project state), `decisions.md` (significant decisions), `.metrics/metrics-<your-model>.md` (session row — include in the commit you push).
+5. **Push:**
    ```bash
    git pull --rebase
    bd dolt push
    git push
-   git status  # MUST show "up to date with origin"
+   git status   # must show "up to date with origin"
    ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+6. **Open a PR** to `main` and flag it as ready for review.
 
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
+Never say "ready to push when you are" — you must push. If push fails, resolve and retry.
 
-<!-- END BEADS INTEGRATION -->
+---
+
+## Key References
+
+| Doc | When to read |
+|-----|-------------|
+| `STATUS.md` | Every session — current project state |
+| `decisions.md` | When you need project history; log decisions here |
+| `.metrics/` | Before every push — include updated session row in commit |
+| `.workflow/beads-coordination.md` | Full `bd` command and dependency reference |
+| `.workflow/Tips & Lessons.md` | When you hit a technical snag |
+| `.workflow/onboarding.md` | First-time setup; parallel agent details |
