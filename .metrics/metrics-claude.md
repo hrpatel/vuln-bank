@@ -12,6 +12,7 @@
 | 8 | Mar 10 | -- | 3 | 1 | Fixed 4 bugs (#21, #22, #26, #36), Meta Tracker sync, session close-out workflow (#55) | Build | collaborative | michael | Bug | Claude Code | #21, #22, #26, #36 |
 | 9 | Mar 10 | ~30 min | 2 | 1 | Bare exception fix (#37), stale refs (#15), Docker modernization (#23, #25, #39), closed #52 #16 | Build | ai | michael | Bug, Tooling | Claude Code | #37 |
 | 10 | Mar 26 | ~45 min | 1 | 0 | CSRF protection via Flask-WTF (T29 / vuln-bank-1zj.3) | Build | ai | hpatel | Security | Claude Code | -- |
+| 11 | Mar 27 | ~1.5 hr | 1 | 1 | Docs consolidation: AGENTS.md + HUMAN.md, deleted CLAUDE.md + START HERE.md (PR #123) | Build | collaborative | hpatel | Tooling | Claude Code | -- |
 
 ## Code Volume
 
@@ -20,6 +21,7 @@
 | 8 | Mar 10 | 159 | 41 | +118 | README.md, app.py, auth.py, Dockerfile, openapi.json, index.html, metrics-claude.md, metrics-cursor.md, START HERE.md, How We Work.md, metrics.md |
 | 9 | Mar 10 | 24 | 18 | +6 | app.py, How We Work.md, Dockerfile, docker-compose.yml, README.md |
 | 10 | Mar 26 | ~60 | ~10 | +50 | requirements.txt, app.py, static/dashboard.js, templates/login.html, register.html, forgot_password.html, reset_password.html, dashboard.html, admin.html |
+| 11 | Mar 27 | 246 | 296 | -50 | AGENTS.md, HUMAN.md (new), CLAUDE.md (deleted), .workflow/START HERE.md (deleted), STATUS.md |
 
 ## PR Activity
 
@@ -28,7 +30,8 @@
 | 8 | Mar 10 | 1 | -- | 2 | PR #53: Fix 4 bugs (Commando-X refs, debug prints, dead SQLite, upload perms) |
 | 8 | Mar 10 | 1 | 1 | 1 | PR #56: Session close-out workflow + split metrics files (#55) |
 | 9 | Mar 10 | 2 | 2 | 2 | PR #102: Bare exceptions + stale refs (#37, #15). PR #104: Docker modernization (#23, #25, #39) |
-| 10 | Mar 26 | 1 | -- | 1 | PR: CSRF protection (T29 / vuln-bank-1zj.3) |
+| 10 | Mar 26 | 1 | 1 | 1 | PR #120: CSRF protection (T29 / vuln-bank-1zj.3) |
+| 11 | Mar 27 | 1 | 1 | 2 | PR #123: docs consolidation (AGENTS.md + HUMAN.md) |
 
 ## Bugs Found/Fixed
 
