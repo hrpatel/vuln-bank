@@ -31,11 +31,22 @@ done
 
 [[ -z "$AGENT_NAME" ]] && usage
 
+# --- Determine Tracker ---
+TRACKER="beads" # default fallback
+if [[ -f ".workflow/issue-tracker.md" ]]; then
+  # Extract tracker from the 'This project uses: ' line, strip formatting and make lowercase
+  TRACKER=$(awk -F': ' '/This project uses: / {print $2}' .workflow/issue-tracker.md | tr -d '* ' | tr '[:upper:]' '[:lower:]' | xargs)
+fi
+
 # --- Verify we're in the main repo root ---
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
   || die "Not inside a git repository"
-[[ -d ".beads" ]] \
-  || die "No .beads/ directory — is this a beads-enabled repo?"
+
+if [[ "$TRACKER" == "beads" ]]; then
+  [[ -d ".beads" ]] \
+    || die "No .beads/ directory — is this a beads-enabled repo?"
+fi
+
 [[ ! -f ".bd-agent-identity" ]] \
   || die "Found .bd-agent-identity — you're inside an agent worktree. Run from the main repo root."
 
@@ -63,11 +74,17 @@ rm -f "$WORKTREE_PATH/.bd-agent-identity"
 # --- Remove worktree ---
 echo "Removing agent workspace: $AGENT_NAME ($WORKTREE_PATH)..."
 if [[ "$FORCE" == "true" ]]; then
-  bd worktree remove "$WORKTREE_PATH" --force 2>/dev/null \
-    || git worktree remove "$WORKTREE_PATH" --force
+  if [[ "$TRACKER" == "beads" ]] && command -v bd >/dev/null 2>&1; then
+    bd worktree remove "$WORKTREE_PATH" --force 2>/dev/null || git worktree remove "$WORKTREE_PATH" --force
+  else
+    git worktree remove "$WORKTREE_PATH" --force
+  fi
 else
-  bd worktree remove "$WORKTREE_PATH" 2>/dev/null \
-    || git worktree remove "$WORKTREE_PATH"
+  if [[ "$TRACKER" == "beads" ]] && command -v bd >/dev/null 2>&1; then
+    bd worktree remove "$WORKTREE_PATH" 2>/dev/null || git worktree remove "$WORKTREE_PATH"
+  else
+    git worktree remove "$WORKTREE_PATH"
+  fi
 fi
 
 echo ""

@@ -58,11 +58,22 @@ fi
 # Default branch
 [[ -z "$BRANCH" ]] && BRANCH="${AGENT_NAME}/work"
 
+# --- Determine Tracker ---
+TRACKER="beads" # default fallback
+if [[ -f ".workflow/issue-tracker.md" ]]; then
+  # Extract tracker from the 'This project uses: ' line, strip formatting and make lowercase
+  TRACKER=$(awk -F': ' '/This project uses: / {print $2}' .workflow/issue-tracker.md | tr -d '* ' | tr '[:upper:]' '[:lower:]' | xargs)
+fi
+
 # --- Verify we're in the main repo root ---
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
   || die "Not inside a git repository"
-[[ -d ".beads" ]] \
-  || die "No .beads/ directory — is this a beads-enabled repo? Run 'bd init' first."
+
+if [[ "$TRACKER" == "beads" ]]; then
+  [[ -d ".beads" ]] \
+    || die "No .beads/ directory — is this a beads-enabled repo? Run 'bd init' first."
+fi
+
 [[ ! -f ".bd-agent-identity" ]] \
   || die "Found .bd-agent-identity — you're inside an agent worktree. Run from the main repo root."
 
@@ -73,15 +84,19 @@ WORKTREE_PATH="$(cd "$REPO_ROOT/.." && pwd)/${REPO_BASENAME}-${AGENT_NAME}"
 [[ ! -d "$WORKTREE_PATH" ]] \
   || die "Worktree path already exists: $WORKTREE_PATH"
 
-# --- Create worktree via bd ---
+# --- Create worktree ---
 echo "Creating worktree at $WORKTREE_PATH (branch: $BRANCH)..."
-bd worktree create "$WORKTREE_PATH" --branch "$BRANCH"
+if [[ "$TRACKER" == "beads" ]]; then
+  bd worktree create "$WORKTREE_PATH" --branch "$BRANCH"
+else
+  git worktree add -b "$BRANCH" "$WORKTREE_PATH"
+fi
 
 # --- Enable per-worktree config (idempotent) ---
-git config set extensions.worktreeConfig true
+git config extensions.worktreeConfig true
 
 # --- Set per-worktree identity ---
-git -C "$WORKTREE_PATH" config --worktree set user.name "$AGENT_NAME"
+git -C "$WORKTREE_PATH" config --worktree user.name "$AGENT_NAME"
 
 # --- Write identity marker ---
 echo "$AGENT_NAME" > "$WORKTREE_PATH/.bd-agent-identity"

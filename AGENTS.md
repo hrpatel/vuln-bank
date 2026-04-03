@@ -25,7 +25,7 @@ scripts/spawn-agent.sh my-agent-name    # creates isolated worktree
 scripts/teardown-agent.sh my-agent-name # when done
 ```
 
-Each worktree has `git config --worktree user.name` set to the agent name so `bd` claims use the correct identity automatically.
+Each worktree has `git config --worktree user.name` set to the agent name. A dedicated worktree is required for all agents regardless of the chosen issue tracker, ensuring filesystem isolation and correct attribution of work.
 
 ---
 

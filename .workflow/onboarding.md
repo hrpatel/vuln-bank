@@ -108,7 +108,7 @@ After this, follow [.workflow/START HERE.md](START%20HERE.md) and the coordinati
 
 ## Parallel agents on one machine (filesystem isolation)
 
-**Problem:** Two AI agents using the **same directory** will fight over the working tree when each checks out a different branch. They also share the same `git user.name`, which makes `bd` claims indistinguishable.
+**Problem:** Two AI agents using the **same directory** will fight over the working tree when each checks out a different branch. They also share the same `git user.name`, which makes issue tracker attributions indistinguishable.
 
 **Fix: `spawn-agent.sh`.** Each agent self-registers at session start, or an operator can pre-provision workspaces.
 
@@ -131,8 +131,8 @@ scripts/spawn-agent.sh cursor-b --branch cursor/02-fix  # creates ../vuln-bank-c
 Either way, each agent ends up in its own folder. The main repo is the "base camp" — no agent should work directly in it.
 
 **What the script does:**
-1. Creates a git worktree via `bd worktree create` (shares `.beads` database)
-2. Sets `git config --worktree user.name <agent-name>` so `bd` commands use a distinct identity
+1. Decides the worktree creation method based on `.workflow/issue-tracker.md` (e.g. `bd worktree create` vs `git worktree add`)
+2. Sets `git config --worktree user.name <agent-name>` so issue trackers see a distinct identity
 3. Writes `.bd-agent-identity` so agents can verify their workspace at session start
 
 **Teardown:**
