@@ -8,15 +8,9 @@ Use this checklist **once** when setting up multi-model AI collaboration on a ne
 
 ## 1. Choose the issue tracker
 
-Decide where tasks will live so **all** agents and operators look in the same place:
+Decide where tasks will live so **all** agents and operators look in the same place. This choice is stored locally in `.workflow/issue-tracker.md` (excluded from git).
 
-| Option | Use when |
-|--------|----------|
-| **GitHub Issues** | Work is coordinated in this repo; labels, assignees, and PR linking matter. |
-| **Jira** | Work is driven by an existing Jira project (epics, stories); team already uses Jira. |
-| **Beads** | Local, dependency-aware task graph; optional Jira sync; good for agents and branching. |
-
-**Set the choice:** Edit [.workflow/issue-tracker.md](issue-tracker.md). Set the line “This project uses:” to **GitHub Issues**, **Jira**, or **Beads**, and leave the rest of the file as-is (it already links to the right coordination guide).
+**Set the choice:** Run `scripts/setup-workflow.sh` to initialize your local config from the template. If you need to change it later, re-run the script or edit `.workflow/issue-tracker.md` directly.
 
 When using Beads with Jira sync (Beads for execution, Jira for reporting), see [Beads + Jira dual-tracker design](../docs/specs/2026-03-13-beads-jira-dual-tracker-design.md) and ensure the coordination guide and onboarding reflect Jira read/write.
 

@@ -1,0 +1,21 @@
+# Issue Tracker — Project Setting (Local)
+
+**This project’s task coordination is determined once at setup.** All agents and operators use the same tracker so multi-model coordination works.
+
+## Supported Trackers
+
+| Tracker | Coordination guide |
+|---------|--------------------|
+| **GitHub Issues** | [.workflow/github-issues-coordination.md](github-issues-coordination.md) |
+| Jira | [.workflow/jira-coordination.md](jira-coordination.md) |
+| Beads | [.workflow/beads-coordination.md](beads-coordination.md) |
+
+**This project uses: [TRACKER_CHOICE]**
+
+[DYNAMIC_GUIDE_LINK]
+
+---
+
+## Changing the tracker
+
+To change the tracker, re-run `scripts/setup-workflow.sh` or edit this file directly and update the "This project uses" line and the guidance link below it. Ensure the corresponding coordination guide is in place and that all operators and agents use the same choice.
