@@ -1,10 +1,10 @@
 # Vuln Bank — Current Status
 
-**Last updated:** March 27, 2026
+**Last updated:** April 3, 2026
 **Repo:** https://github.com/hrpatel/vuln-bank
 **Live site:** N/A (runs locally via Docker)
 **Current phase:** Build
-**Current state:** Workflow artifact cleanup — removed superseded .archive/ docs (task index and review files replaced by GitHub Issues); AGENTS.md is the single self-contained agent entrypoint.
+**Current state:** Dynamic workflow setup — converted issue-tracker.md to local config from template; setup-workflow.sh for tracker initialization.
 
 ---
 
@@ -24,6 +24,8 @@ A deliberately vulnerable banking application designed for practicing security t
   - `static/` — CSS, JS, images
 
 ## Recent Work
+
+- **Antigravity session (Apr 3):** Dynamic issue-tracker setup (PR #127): converted `.workflow/issue-tracker.md` to a local file generated from `.workflow/issue-tracker.md.template`. Created `scripts/setup-workflow.sh` for tracker initialization (interactive + flag support). Updated onboarding/bootstrap docs. PR merged.
 
 - **Claude Code session (Mar 27):** Workflow artifact audit and cleanup (PR #125): removed .archive/ directory (task index and review files — superseded by GitHub Issues); deleted orphaned agent worktree. Filed #126 to document undocumented SDE utility scripts. No Beads tasks — operator-directed.
 - **Claude Code session (Mar 27):** Docs consolidation (PR #123): rewrote AGENTS.md as single self-contained agent entrypoint; created HUMAN.md with operator prompts; deleted CLAUDE.md and .workflow/START HERE.md. No Beads tasks — operator-directed.

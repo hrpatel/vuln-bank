@@ -151,6 +151,26 @@ Both models should log decisions — not just the model that made them. If Curso
 
 ---
 
+### Localizing Project Settings
+
+**Summary:** Moving per-clone settings (like issue tracker choice) out of tracked repo files.
+**Sessions:** 1 (Antigravity)
+**Phase:** Build
+**AI Tools:** Antigravity
+
+---
+
+#### Decouple Issue Tracker Setting from Committed Configuration
+- **Type:** decision
+- **Category:** process
+- **Context:** `issue-tracker.md` was a committed file containing the project's tracker choice. This made it difficult for operators to use different trackers (e.g., for local testing, private forks, or transitioning) without causing git churn or coordination noise.
+- **Chosen path:** Moved `issue-tracker.md` to a local, untracked file generated from `.workflow/issue-tracker.md.template`. Added `scripts/setup-workflow.sh` to initialize the choice.
+- **Alternatives:** (1) Keep file committed and use branches — causes merge conflicts. (2) Use environment variables only — less discoverable for agents. (3) Documentation-only setup — too many manual steps, error-prone.
+- **Why this path:** Preserves the template/guide structure while allowing per-clone flexibility. The setup script makes it discoverable and non-interactive (via flags) for automated environments.
+- **Outcome:** Implemented in PR #127 (Apr 3, 2026)
+
+---
+
 ## Appendix: Entry Types
 
 | Type | Use When |
