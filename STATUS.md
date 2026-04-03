@@ -25,6 +25,7 @@ A deliberately vulnerable banking application designed for practicing security t
 
 ## Recent Work
 
+- **Antigravity session (Apr 3):** Decoupled git worktree creation from the Beads tracker (PR #128): modified `scripts/spawn-agent.sh` and `scripts/teardown-agent.sh` to determine tracker choice dynamically via `.workflow/issue-tracker.md`, supporting `git worktree add` alongside `bd worktree create`. Updated `AGENTS.md` and onboarding docs to clarify worktree usage is tracker-agnostic. PR merged.
 - **Antigravity session (Apr 3):** Dynamic issue-tracker setup (PR #127): converted `.workflow/issue-tracker.md` to a local file generated from `.workflow/issue-tracker.md.template`. Created `scripts/setup-workflow.sh` for tracker initialization (interactive + flag support). Updated onboarding/bootstrap docs. PR merged.
 
 - **Claude Code session (Mar 27):** Workflow artifact audit and cleanup (PR #125): removed .archive/ directory (task index and review files — superseded by GitHub Issues); deleted orphaned agent worktree. Filed #126 to document undocumented SDE utility scripts. No Beads tasks — operator-directed.
