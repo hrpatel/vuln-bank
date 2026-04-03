@@ -7,6 +7,7 @@
 
 # Agent identity marker (per-worktree, not committed)
 .bd-agent-identity
+.workflow/issue-tracker.md
 
 # Claude Code worktrees (local agent workspaces)
 .claude/

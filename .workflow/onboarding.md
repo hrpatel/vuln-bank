@@ -40,9 +40,17 @@ Used for PRs and (when the project uses GitHub Issues) for the issue tracker. Au
 
 ---
 
-## Optional (by issue tracker)
+## 1. Local Workflow Setup
 
-Read [.workflow/issue-tracker.md](issue-tracker.md) to see which tracker this project uses. Install only the tools for that tracker.
+Before you begin, you must initialize your local issue tracker configuration. This file is excluded from git to allow each operator to choose their preferred tracker (though teams should usually stay in sync).
+
+```bash
+scripts/setup-workflow.sh
+```
+
+## 2. Optional (by issue tracker)
+
+Read [.workflow/issue-tracker.md](issue-tracker.md) (generated in step 1) to see which tracker this project uses. Install only the tools for that tracker.
 
 ### If the project uses Beads
 
@@ -88,7 +96,8 @@ You need **Atlassian CLI (`acli`)**.
 ## Checklist
 
 1. **Clone the repo** (if you haven’t): `git clone <repo-url>` and `cd` into it.
-2. **Install required tools:** Git and GitHub CLI (see above). Run `gh auth login` if needed.
+2. **Local workflow setup:** Run `scripts/setup-workflow.sh` to initialize your local `issue-tracker.md`.
+3. **Install required tools:** Git and GitHub CLI (see above). Run `gh auth login` if needed.
 3. **Check the issue tracker:** Read [.workflow/issue-tracker.md](issue-tracker.md). If the project uses Beads or Jira, install and verify those tools.
 4. **Running two agents on one machine?** Add a **git worktree** (see *Parallel agents* below).
 5. **Confirm:** `git --version`, `gh auth status`, and (if applicable) `bd --version` or `acli --version`.
